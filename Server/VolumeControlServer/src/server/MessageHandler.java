@@ -6,7 +6,7 @@ import java.net.DatagramPacket;
 
 import message.GetUserConfigsRequest;
 import message.HelloWorldMessage;
-import message.RegisterUserRequest;
+import message.PostNewUserRequest;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -30,9 +30,9 @@ public class MessageHandler implements Runnable {
 				System.out.println("Got a HelloWorldMessage, how sweet!");
 				System.out.println("Replying :)");
 				reply = new HelloWorldMessage();
-			} else if(receivedMessage instanceof RegisterUserRequest) {
+			} else if(receivedMessage instanceof PostNewUserRequest) {
 				System.out.println("User registration request");
-				reply = new RegisterUserHandler().handle((RegisterUserRequest) receivedMessage);
+				reply = new PostNewUserHandler().handle((PostNewUserRequest) receivedMessage);
 			} else if(receivedMessage instanceof GetUserConfigsRequest) {
 				System.out.println("Get user configs request");
 				reply = new GetUserConfigsHandler().handle((GetUserConfigsRequest) receivedMessage);

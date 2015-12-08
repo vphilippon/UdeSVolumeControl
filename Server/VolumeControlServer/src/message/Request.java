@@ -5,14 +5,14 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public abstract class Request implements Serializable {
 	
-	private String _id;
+	private String _userId;
 	
-	public Request(String id) {
-		_id = id;
+	public Request(String userId) {
+		_userId = userId;
 	}
 	
-	public String getId() {
-		return _id;
+	public String getUserId() {
+		return _userId;
 	}
 
 }
