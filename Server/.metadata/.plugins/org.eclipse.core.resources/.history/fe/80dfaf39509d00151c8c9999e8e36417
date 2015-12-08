@@ -1,7 +1,0 @@
-package message;
-
-import java.io.Serializable;
-
-public class HelloWorldMessage implements Serializable {
-
-}

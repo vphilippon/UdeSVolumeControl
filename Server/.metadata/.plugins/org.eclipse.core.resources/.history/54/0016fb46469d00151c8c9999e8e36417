@@ -1,9 +1,0 @@
-package server;
-
-public class MessageHandler extends Runnable {
-
-	public MessageHandler() {
-		// TODO Auto-generated constructor stub
-	}
-
-}
