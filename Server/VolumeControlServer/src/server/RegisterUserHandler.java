@@ -1,13 +1,11 @@
 package server;
 
-import java.io.Serializable;
-
 import message.RegisterUserReply;
 import message.RegisterUserRequest;
 
 public class RegisterUserHandler {
 
-	public Serializable handle(RegisterUserRequest request) {
+	public RegisterUserReply handle(RegisterUserRequest request) {
 		
 		// TODO Connect to DB
 		// TODO Insert user

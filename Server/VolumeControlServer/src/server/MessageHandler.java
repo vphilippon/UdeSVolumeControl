@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 
+import message.GetUserConfigsRequest;
 import message.HelloWorldMessage;
 import message.RegisterUserRequest;
 import utils.ClientUDP;
@@ -32,6 +33,9 @@ public class MessageHandler implements Runnable {
 			} else if(receivedMessage instanceof RegisterUserRequest) {
 				System.out.println("User registration request");
 				reply = new RegisterUserHandler().handle((RegisterUserRequest) receivedMessage);
+			} else if(receivedMessage instanceof GetUserConfigsRequest) {
+				System.out.println("Get user configs request");
+				reply = new GetUserConfigsHandler().handle((GetUserConfigsRequest) receivedMessage);
 			} else {
 				System.out.println("Unknown message type received");
 			}
