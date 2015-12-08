@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 
 import message.HelloWorldMessage;
+import message.RegisterUserRequest;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -24,13 +25,13 @@ public class MessageHandler implements Runnable {
 			
 			Serializable reply = null;
 			
-			// TODO Handle message based on type and call module to handle the request
-			// TODO HANDLE SHOULD RETURN AN OBJECT TO REPLY, unless you got nothing
-			
 			if(receivedMessage instanceof HelloWorldMessage) {
 				System.out.println("Got a HelloWorldMessage, how sweet!");
 				System.out.println("Replying :)");
 				reply = new HelloWorldMessage();
+			} else if(receivedMessage instanceof RegisterUserRequest) {
+				System.out.println("User registration request");
+				reply = new RegisterUserHandler().handle((RegisterUserRequest) receivedMessage);
 			} else {
 				System.out.println("Unknown message type received");
 			}
