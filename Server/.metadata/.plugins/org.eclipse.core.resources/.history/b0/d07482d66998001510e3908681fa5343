@@ -1,0 +1,55 @@
+package utils;
+
+import java.io.*;
+import java.net.*;
+
+public class ClientUDP {
+	public static final int DEFAULT_BUFFER_SIZE = 1024;
+	private static final int RECEIVE_TIMEOUT = 5000;  // 5 seconds
+	
+	private DatagramSocket _socket = null;
+	
+	private byte[] _buffer = new byte[DEFAULT_BUFFER_SIZE];
+	
+	// For one-time configuration on client side
+	private InetSocketAddress _addrPort = null;
+	 
+	public ClientUDP() throws SocketException{
+		_socket = new DatagramSocket(null);
+		_socket.setSoTimeout(RECEIVE_TIMEOUT);
+    }
+	
+    public void bind(int port) throws SocketException{
+    	_socket.bind(new InetSocketAddress(port));
+    }
+    
+    public void connect(String hostname, int port) throws SocketException, UnknownHostException{
+    	_addrPort = new InetSocketAddress(hostname, port);
+    	_socket.connect(_addrPort);
+    }
+    
+    public void send(byte[] msg, SocketAddress addrPort) throws IOException{
+        _socket.send(
+            new DatagramPacket(
+                msg,
+                msg.length,
+                addrPort
+        ));
+    }
+    
+    public void send(byte[] msg) throws IOException{
+    	// For Client use only
+    	send(msg, _addrPort);
+    }
+    
+    public DatagramPacket receive() throws IOException{
+        DatagramPacket p = new DatagramPacket(_buffer, _buffer.length);
+        _socket.receive(p);
+        return p;
+    }
+
+    public void close(){
+        _socket.close();
+    }
+
+}

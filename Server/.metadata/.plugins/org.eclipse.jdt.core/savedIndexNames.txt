@@ -1,0 +1,16 @@
+INDEX VERSION 1.127+C:\Users\phiv2201\Desktop\IFT604\_PROJET\.metadata\.plugins\org.eclipse.jdt.core
+2632131141.index
+1125471292.index
+4269343441.index
+2047100302.index
+2843279516.index
+2055126324.index
+3339473378.index
+3992039403.index
+3401691845.index
+3011131180.index
+405736468.index
+2477239688.index
+1825659542.index
+4168312597.index
+798960207.index

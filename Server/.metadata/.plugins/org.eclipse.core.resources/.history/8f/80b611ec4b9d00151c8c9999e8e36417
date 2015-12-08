@@ -1,0 +1,35 @@
+package server;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import utils.ClientUDP;
+
+public class MessageHandler implements Runnable {
+
+	DatagramPacket _receivedData;
+	
+	public MessageHandler(DatagramPacket data) {
+		_receivedData = data;
+	}
+
+	@Override
+	public void run() {
+		try {
+			ClientUDP cl = new ClientUDP();
+			cl.connect(_receivedData.getSocketAddress());
+			
+			String mess = new String(_receivedData.getData());
+			System.out.println(mess);
+			cl.send(mess.toUpperCase().getBytes());
+			System.out.println("REP SENT");
+			
+			// TODO Handle message based on type and call module to handle the request
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+}

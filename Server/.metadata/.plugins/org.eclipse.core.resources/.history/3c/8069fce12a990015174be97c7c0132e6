@@ -1,0 +1,53 @@
+package testing;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.Socket;
+import java.net.SocketException;
+
+import utils.ClientUDP;
+
+public class DummyClient {
+
+	public static void main(String[] args) {
+		try {
+			String sentence;
+			String modifiedSentence;
+			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
+			Socket clientSocket = new Socket("helloworld-vptesting.rhcloud.com", 8080);
+			DataOutputStream outToServer;
+			outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			sentence = inFromUser.readLine();
+			outToServer.writeBytes(sentence + '\n');
+			modifiedSentence = inFromServer.readLine();
+			System.out.println("FROM SERVER: " + modifiedSentence);
+			clientSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*try {
+			ClientUDP cl = new ClientUDP();
+			cl.connect("localhost", 8000);
+			
+			cl.send("helloworld".getBytes());
+			
+			DatagramPacket rep = cl.receive();
+			
+			System.out.println("GOT REPLY");
+			System.out.println(new String(rep.getData()));
+			
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+	}
+
+}

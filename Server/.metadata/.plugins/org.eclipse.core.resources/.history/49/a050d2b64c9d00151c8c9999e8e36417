@@ -1,0 +1,33 @@
+package testing;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.SocketException;
+
+import utils.ClientUDP;
+
+public class DummyClient {
+
+	public static void main(String[] args) {
+		try {
+			ClientUDP cl = new ClientUDP();
+			cl.connect("localhost", 9005);
+			
+			System.out.println("SENDING");
+			cl.send("helloworld".getBytes());
+			
+			DatagramPacket rep = cl.receive();
+			
+			System.out.println("GOT REPLY");
+			System.out.println(new String(rep.getData()));
+			
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

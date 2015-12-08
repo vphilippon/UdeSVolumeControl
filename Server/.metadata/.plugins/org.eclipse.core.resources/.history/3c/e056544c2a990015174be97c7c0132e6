@@ -1,0 +1,64 @@
+package server;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+
+import utils.ClientUDP;
+
+public class Main {
+
+	public static void main(String[] args) {
+		String ip = args[0];
+		String port = args[1];
+		
+		System.out.println("STARTING SERVER");
+		
+		try {
+			ServerSocket welcomeSocket = new ServerSocket(Integer.valueOf(port), 1000, InetAddress.getByName(ip));
+			System.out.println("WELCOME CREATED");
+			while(true) {
+				Socket connectionSocket = welcomeSocket.accept();
+				System.out.println("GOT A CONNECTION");
+				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+				String clientSentence = inFromClient.readLine();
+				System.out.println("Received: " + clientSentence);
+				String capitalizedSentence = clientSentence.toUpperCase() + '\n';
+				outToClient.writeBytes(capitalizedSentence);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/*try {
+			ClientUDP cl = new ClientUDP();
+			cl.bind(ip, Integer.valueOf(port));
+			
+			while(true) {
+				DatagramPacket data = cl.receive();
+				
+				System.out.println("GOT STUFF");
+				System.out.println(new String(data.getData()));
+				
+				cl.send(data.getData(), data.getSocketAddress());
+			}
+			
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/	
+	}
+
+}
