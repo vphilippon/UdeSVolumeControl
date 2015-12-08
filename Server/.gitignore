@@ -19,6 +19,7 @@ hs_err_pid*
 ### Eclipse ###
 *.pydevproject
 .metadata
+.recommenders/
 .gradle
 bin/
 tmp/
