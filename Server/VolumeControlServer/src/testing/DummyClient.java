@@ -2,9 +2,8 @@ package testing;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.SocketException;
-
-import message.HelloWorldMessage;
+import message.PostNewUserReply;
+import message.PostNewUserRequest;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -16,22 +15,18 @@ public class DummyClient {
 			cl.connect("localhost", 9005);
 			
 			System.out.println("SENDING");
-			cl.send(Serializer.serialize(new HelloWorldMessage()));
+			//cl.send(Serializer.serialize(new HelloWorldMessage()));
+			cl.send(Serializer.serialize(new PostNewUserRequest("TOTO1")));
 			
 			DatagramPacket rep = cl.receive();
-			
-			HelloWorldMessage mess = (HelloWorldMessage) Serializer.deserialize(rep.getData());
+			//HelloWorldMessage mess = (HelloWorldMessage) Serializer.deserialize(rep.getData());
+			PostNewUserReply mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
 			
 			System.out.println("GOT REPLY");
 			System.out.println(mess);
+			System.out.println(mess.isSuccess());
 			
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

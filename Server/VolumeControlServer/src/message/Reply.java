@@ -14,5 +14,9 @@ public abstract class Reply implements Serializable {
 	public boolean isSuccess() {
 		return _success;
 	}
+	
+	public void setSuccess(boolean s) {
+		_success = s;
+	}
 
 }
