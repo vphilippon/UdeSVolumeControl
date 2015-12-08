@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import message.GetUserConfigsRequest;
 import message.HelloWorldMessage;
 import message.PostNewUserRequest;
+import message.PutConfigRequest;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -36,6 +37,9 @@ public class MessageHandler implements Runnable {
 			} else if(receivedMessage instanceof GetUserConfigsRequest) {
 				System.out.println("Get user configs request");
 				reply = new GetUserConfigsHandler().handle((GetUserConfigsRequest) receivedMessage);
+			} else if(receivedMessage instanceof PutConfigRequest) {
+				System.out.println("Put config request");
+				reply = new PutConfigHandler().handle((PutConfigRequest) receivedMessage);
 			} else {
 				System.out.println("Unknown message type received");
 			}
