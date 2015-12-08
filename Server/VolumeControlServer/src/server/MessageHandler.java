@@ -45,7 +45,7 @@ public class MessageHandler implements Runnable {
 			}
 
 			if(reply != null) {
-				ClientUDP cl = new ClientUDP();
+				ClientUDP cl = new ClientUDP(0);
 				cl.connect(_receivedData.getSocketAddress());
 				cl.send(Serializer.serialize(reply));
 				System.out.println("REPLY SENT");

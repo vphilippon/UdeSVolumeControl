@@ -15,7 +15,7 @@ public class DummyClient {
 
 	public static void main(String[] args) {
 		try {
-			ClientUDP cl = new ClientUDP();
+			ClientUDP cl = new ClientUDP(1000); // 1 sec timeout
 			cl.connect("localhost", 9005);
 			
 			System.out.println("SENDING");
@@ -36,7 +36,7 @@ public class DummyClient {
 			System.out.println(mess.isSuccess());
 			System.out.println(mess.getConfigs());
 			for (Config c : mess.getConfigs()) {
-				System.out.println(c);
+				System.out.println(c.getVolumeMain());
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {

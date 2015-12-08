@@ -19,7 +19,7 @@ public class Main {
 		ExecutorService pool = Executors.newFixedThreadPool(DEFAULT_POOL_SIZE);
 		
 		try {
-			ClientUDP cl = new ClientUDP();
+			ClientUDP cl = new ClientUDP(0);
 			cl.bind(Integer.valueOf(port));
 			
 			while(true) {

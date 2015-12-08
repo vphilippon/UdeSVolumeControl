@@ -11,12 +11,13 @@ public class ClientUDP {
 	
 	// For connection/sending only
 	private SocketAddress _addrPort = null;
-	 
-	public ClientUDP() throws SocketException {
+	
+	public ClientUDP(int receiveTimeout) throws SocketException {
 		_socket = new DatagramSocket(null);
+		_socket.setSoTimeout(receiveTimeout); // 0 -> Infinite
 		_buffer = new byte[DEFAULT_BUFFER_SIZE];
     }
-	
+
     public void bind(int port) throws SocketException, UnknownHostException {
     	_socket.bind(new InetSocketAddress(port));
     }
