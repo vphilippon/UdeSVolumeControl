@@ -1,18 +1,10 @@
 package message;
 
-import java.io.Serializable;
-
-public class RegisterUserRequest implements Serializable {
+public class RegisterUserRequest extends Request {
 	private static final long serialVersionUID = 6944803503028445195L;
 	
-	private String _newUsername;
-	
-	public RegisterUserRequest(String newUsername) {
-		_newUsername = newUsername;
+	public RegisterUserRequest(String newId) {
+		super(newId);
 	}
 	
-	public String getNewUsername() {
-		return _newUsername;
-	}
-
 }
