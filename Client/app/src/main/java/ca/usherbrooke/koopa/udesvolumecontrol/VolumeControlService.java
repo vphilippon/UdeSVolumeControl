@@ -78,7 +78,7 @@ public class VolumeControlService extends Service implements LocationListener
         Toast.makeText(getBaseContext(), "New Latitude: " + location.getLatitude() + " New Longitude: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
         for(VolumeEntry entry : allEntries)
         {
-            if (entry.isInside(location, getBaseContext()))
+            if (entry.isInside(location))
             {
                 if(!entry.getEntryName().equals(currentZoneName))
                 {

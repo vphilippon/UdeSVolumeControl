@@ -2,14 +2,7 @@ package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
-import android.widget.Toast;
 
-import java.util.Vector;
-
-/**
- * Created by meuj1902 on 2015-11-30.
- */
 public class VolumeEntry
 {
     private Integer  ringtoneVolume;
@@ -27,7 +20,7 @@ public class VolumeEntry
         radius = rad;
     }
 
-    public boolean isInside(Location otherLocation, Context baseContext)
+    public boolean isInside(Location otherLocation)
     {
         float locationDist = location.distanceTo(otherLocation);
         return locationDist < radius;
