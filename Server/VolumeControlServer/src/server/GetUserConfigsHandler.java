@@ -14,7 +14,8 @@ import model.Config;
 
 public class GetUserConfigsHandler extends DBHandler{
 	private static final String SELECT_STMT = 
-			"SELECT \"configId\", \"zone\", \"volumeMain\" FROM \"Config\" WHERE \"userId\" = ?;";
+			"SELECT \"configId\", \"configName\", \"zone\", \"volumeRingtone\", \"volumeNotification\" " +
+			"FROM \"Config\" WHERE \"userId\" = ?;";
 	
 	public GetUserConfigsReply handle(GetUserConfigsRequest request) {
 		
@@ -31,9 +32,15 @@ public class GetUserConfigsHandler extends DBHandler{
 			ArrayList<Config> configs = new ArrayList<>();
 			while(rs.next()) {
 				Integer confId = rs.getInt("configId");
+				String confName = rs.getString("configName");
 				PGcircle zone = (PGcircle)rs.getObject("zone");
-				Integer volumeMain = rs.getInt("volumeMain");
-				configs.add(new Config(confId, (int)zone.center.x, (int)zone.center.y, zone.radius, volumeMain));
+				Integer volumeRingtone = rs.getInt("volumeRingtone");
+				Integer volumeNotification = rs.getInt("volumeNotification");
+				configs.add(new Config(
+						confId, confName, 
+						zone.center.x, zone.center.y, (int)zone.radius,
+						volumeRingtone, volumeNotification
+						));
 			}
 			
 			reply.setConfigs(configs);
