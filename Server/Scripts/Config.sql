@@ -5,9 +5,11 @@
 CREATE TABLE "Config"
 (
   "configId" serial NOT NULL,
+  "configName" character varying(50) NOT NULL,
   zone circle NOT NULL,
-  "volumeMain" integer NOT NULL,
-  "userId" character varying(50),
+  "volumeRingtone" integer NOT NULL,
+  "volumeNotification" integer NOT NULL,
+  "userId" character varying(50) NOT NULL,
   CONSTRAINT pk_config PRIMARY KEY ("configId"),
   CONSTRAINT fk_user_config FOREIGN KEY ("userId")
       REFERENCES "User" ("userId") MATCH SIMPLE
