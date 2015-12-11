@@ -3,6 +3,8 @@ package testing;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
+import message.ExistsUserReply;
+import message.ExistsUserRequest;
 import message.GetUserConfigsReply;
 import message.GetUserConfigsRequest;
 import message.HelloWorldMessage;
@@ -23,7 +25,6 @@ public class DummyClient {
 			
 			DatagramPacket data;
 			
-			System.out.println("SENDING");
 			cl.send(Serializer.serialize(new HelloWorldMessage()));
 			data = cl.receive();
 			HelloWorldMessage hw = (HelloWorldMessage) Serializer.deserialize(data.getData());
@@ -35,6 +36,20 @@ public class DummyClient {
 			PostNewUserReply newuser = (PostNewUserReply) Serializer.deserialize(data.getData());
 			System.out.println("NewUser: ");
 			System.out.println(newuser.isSuccess());
+			
+			cl.send(Serializer.serialize(new ExistsUserRequest("TOTO3")));
+			data = cl.receive();
+			ExistsUserReply exuser = (ExistsUserReply) Serializer.deserialize(data.getData());
+			System.out.println("ExistsUser: ");
+			System.out.println(exuser.isSuccess());
+			System.out.println(exuser.isExisting());
+			
+			cl.send(Serializer.serialize(new ExistsUserRequest("TrumpTheBright")));
+			data = cl.receive();
+			ExistsUserReply notexuser = (ExistsUserReply) Serializer.deserialize(data.getData());
+			System.out.println("NotExistsUser: ");
+			System.out.println(notexuser.isSuccess());
+			System.out.println(notexuser.isExisting());
 			
 			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new Config(null, "UdeS", 1.0, 1.0, 2, 5, 6))));
 			data = cl.receive();

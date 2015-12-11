@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 
+import message.ExistsUserRequest;
 import message.GetUserConfigsRequest;
 import message.HelloWorldMessage;
 import message.PostNewUserRequest;
@@ -34,6 +35,9 @@ public class MessageHandler implements Runnable {
 			} else if(receivedMessage instanceof PostNewUserRequest) {
 				System.out.println("User registration request");
 				reply = new PostNewUserHandler().handle((PostNewUserRequest) receivedMessage);
+			} else if(receivedMessage instanceof ExistsUserRequest) {
+				System.out.println("User exists request");
+				reply = new ExistsUserHandler().handle((ExistsUserRequest) receivedMessage);
 			} else if(receivedMessage instanceof GetUserConfigsRequest) {
 				System.out.println("Get user configs request");
 				reply = new GetUserConfigsHandler().handle((GetUserConfigsRequest) receivedMessage);
@@ -41,7 +45,7 @@ public class MessageHandler implements Runnable {
 				System.out.println("Put config request");
 				reply = new PutConfigHandler().handle((PutConfigRequest) receivedMessage);
 			} else {
-				System.out.println("Unknown message type received");
+				System.err.println("Unknown message type received");
 			}
 
 			if(reply != null) {
@@ -52,7 +56,6 @@ public class MessageHandler implements Runnable {
 			}
 			
 		} catch (ClassNotFoundException | IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
