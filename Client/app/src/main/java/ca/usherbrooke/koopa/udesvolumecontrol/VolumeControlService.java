@@ -47,7 +47,7 @@ public class VolumeControlService extends Service implements LocationListener
         {
             temp.add(0);
         }
-        allEntries.add(new VolumeEntry(locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER),10, temp));
+        allEntries.add(new VolumeEntry("Test",locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER),10, temp));
         /*TODO: temp Code*/
 
 
@@ -81,13 +81,15 @@ public class VolumeControlService extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
-        Toast.makeText(this, "Service : Location changed", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Service : Location changed", Toast.LENGTH_SHORT).show();
         String msg = "New Latitude: "+location.getLatitude()+" New Longitude: "+location.getLongitude();
         Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
         for(VolumeEntry entry : allEntries)
         {
             if (entry.isInside(location))
             {
+                msg = "Zone " + entry.getEntryName();
+                Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
                 Vector<Integer> volumes = entry.getAllVolumes();
                 for (int i = 0; i < volumes.size(); ++i)
                 {

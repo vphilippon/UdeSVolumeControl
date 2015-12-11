@@ -9,9 +9,10 @@ import java.util.Vector;
  */
 public class VolumeEntry
 {
-    Vector<Integer> allVolumes;
-    Location location;
-    int radius;
+    private Vector<Integer> allVolumes;
+    private Location location;
+    private int radius;
+    private String entryName;
 
     /*
         @param loc : location
@@ -19,8 +20,9 @@ public class VolumeEntry
         @param volumes : volumes for thi device. see
 
      */
-    public VolumeEntry(Location loc, int rad,Vector<Integer> volumes)
+    public VolumeEntry(String name, Location loc, int rad,Vector<Integer> volumes)
     {
+        entryName = name;
         allVolumes = volumes;
         location = loc;
         radius = rad;
@@ -36,4 +38,5 @@ public class VolumeEntry
     {
         return allVolumes;
     }
+    public String getEntryName() { return entryName; }
 }
