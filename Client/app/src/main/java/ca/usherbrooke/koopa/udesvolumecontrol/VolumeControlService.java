@@ -41,13 +41,25 @@ public class VolumeControlService extends Service implements LocationListener
         locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         allEntries = new Vector<VolumeEntry>();
         /*TODO: temp Code*/
-        Vector<Integer> temp = new Vector<Integer>();
-        Random rand = new Random();
-        for(int i = 0; i < audioMan.NUM_STREAMS; ++i)
         {
-            temp.add(0);
+
+            Location tempLoc = new Location(locMan.GPS_PROVIDER);
+            tempLoc.setLatitude(45.380868);
+            tempLoc.setLongitude(-71.928636);
+            allEntries.add(new VolumeEntry("SVE", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 50, 0,0));
         }
-        allEntries.add(new VolumeEntry("Test",locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER),10, temp));
+        {
+            Vector<Integer> temp = new Vector<Integer>();
+            Random rand = new Random();
+            for (int i = 0; i < audioMan.NUM_STREAMS; ++i)
+            {
+                temp.add(100);
+            }
+            Location tempLoc = new Location(locMan.GPS_PROVIDER);
+            tempLoc.setLatitude(45.3800588);
+            tempLoc.setLongitude(-71.9269598);
+            allEntries.add(new VolumeEntry("Science", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 50, audioMan.getStreamMaxVolume(audioMan.STREAM_RING), audioMan.getStreamMaxVolume(audioMan.STREAM_NOTIFICATION) ));
+        }
         /*TODO: temp Code*/
 
 
@@ -90,11 +102,10 @@ public class VolumeControlService extends Service implements LocationListener
             {
                 msg = "Zone " + entry.getEntryName();
                 Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
-                Vector<Integer> volumes = entry.getAllVolumes();
-                for (int i = 0; i < volumes.size(); ++i)
-                {
-                    audioMan.setStreamVolume(i, volumes.elementAt(i),/* TODO: no flag 0*/AudioManager.FLAG_SHOW_UI);
-                }
+
+                audioMan.setStreamVolume(audioMan.STREAM_NOTIFICATION, entry.getNotificationVolume(),/* TODO: no flag 0*/AudioManager.FLAG_SHOW_UI);
+                audioMan.setStreamVolume(audioMan.STREAM_RING, entry.getRingtoneVolume(),/* TODO: no flag 0*/AudioManager.FLAG_SHOW_UI);
+
                 break;
             }
         }

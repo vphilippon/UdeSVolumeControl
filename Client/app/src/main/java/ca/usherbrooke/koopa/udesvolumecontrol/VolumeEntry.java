@@ -9,21 +9,32 @@ import java.util.Vector;
  */
 public class VolumeEntry
 {
-    private Vector<Integer> allVolumes;
+    private Integer  ringtoneVolume;
+    private Integer  notificationVolume;
     private Location location;
     private int radius;
     private String entryName;
 
-    /*
-        @param loc : location
-        @param rad : radius in meter
-        @param volumes : volumes for thi device. see
+    public Integer getRingtoneVolume()
+    {
+        return ringtoneVolume;
+    }
 
-     */
-    public VolumeEntry(String name, Location loc, int rad,Vector<Integer> volumes)
+    public Integer getNotificationVolume()
+    {
+        return notificationVolume;
+    }
+
+    /*
+            @param loc : location
+            @param rad : radius in meter
+
+         */
+    public VolumeEntry(String name, Location loc, int rad,int ringtone, int notification)
     {
         entryName = name;
-        allVolumes = volumes;
+        ringtoneVolume = ringtone;
+        notificationVolume = notification;
         location = loc;
         radius = rad;
     }
@@ -34,9 +45,6 @@ public class VolumeEntry
         return locationDist < radius;
     }
 
-    public Vector<Integer> getAllVolumes()
-    {
-        return allVolumes;
-    }
+
     public String getEntryName() { return entryName; }
 }
