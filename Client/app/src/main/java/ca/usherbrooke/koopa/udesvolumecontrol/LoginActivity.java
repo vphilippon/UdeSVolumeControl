@@ -4,8 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,9 +37,12 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Vector;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -41,6 +51,47 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+    private ServiceConnection volumeControlServiceConn = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            serv = ((VolumeControlService.VolumeControlServiceBinder)service).getService();
+             /*TODO: temp Code*/
+            Vector<VolumeEntry> allEntries = new Vector<>();
+            {
+
+                Location tempLoc = new Location(LocationManager.GPS_PROVIDER);
+                tempLoc.setLatitude(45.381);
+                tempLoc.setLongitude(-71.9272000);
+                allEntries.add(new VolumeEntry("DOWN", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30, 0, 0));
+            }
+            {
+                Vector<Integer> temp = new Vector<Integer>();
+                Random rand = new Random();
+                for (int i = 0; i < AudioManager.NUM_STREAMS; ++i)
+                {
+                    temp.add(100);
+                }
+                Location tempLoc = new Location(LocationManager.GPS_PROVIDER);
+                tempLoc.setLatitude(45.38);
+                tempLoc.setLongitude(-71.9272);
+                allEntries.add(new VolumeEntry("UP", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30,0,0));
+            }
+            serv.setAllEntries(allEntries);
+        /*TODO: temp Code*/
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name)
+        {
+            serv = null;
+        }
+    };
+
+    private VolumeControlService serv;
+
+    boolean isBound = false;
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -70,21 +121,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-//        populateAutoComplete();
-//
-//        mPasswordView = (EditText) findViewById(R.id.password);
-//        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-//                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-//                    attemptLogin();
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
 
-        ComponentName service = startService(new Intent(getBaseContext(), VolumeControlService.class));
+        bindService(new Intent(this,
+                VolumeControlService.class), volumeControlServiceConn, Context.BIND_AUTO_CREATE);
+        isBound = true;
+
+//        void doUnbindService() {
+//            if (mIsBound) {
+//                // Detach our existing connection.
+//                unbindService(mConnection);
+//                mIsBound = false;
+//            }
+//        }
+//
+//        @Override
+//        protected void onDestroy() {
+//            super.onDestroy();
+//            doUnbindService();
+//        }
+
+//        Intent i = new Intent(this, VolumeControlService.class);
+//        getApplicationContext().bindService(i, volumeControlServiceConn, Context.BIND_AUTO_CREATE);
+//        ComponentName componentName = getApplicationContext().startService(i);
+//        i.
+//        if( getApplicationContext().bindService(i, volumeControlService, 0)){
+//            Toast.makeText(this, "App : Service Started ", Toast.LENGTH_SHORT).show();
+//
+//        } else {
+//            Toast.makeText(this, "app : Service Not Started ", Toast.LENGTH_SHORT).show();
+//        }
+        //ComponentName service = startService(new Intent(getBaseContext(), VolumeControlService.class));
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
