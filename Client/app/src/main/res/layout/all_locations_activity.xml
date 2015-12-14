@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Current Location section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.45"
+            android:orientation="vertical">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:id="@+id/knownLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.4"
+                        android:text="Home"
+                        android:textSize="30dp"
+                        android:textColor="@color/colorAccent"
+                        android:gravity="center"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.3"
+                        android:src="@drawable/ic_vibrate"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.3"
+                        android:orientation="horizontal" >
+                        <ImageButton
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            android:backgroundTint="@color/colorPrimary"
+                             android:src="@drawable/ic_edit"/>
+                        <ImageButton
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            android:backgroundTint="@color/colorPrimary"
+                            android:src="@drawable/ic_delete"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/unknownLocation"
+                    android:visibility="gone"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="70dp"
+                        android:text="Unsaved Location"
+                        android:textSize="40dp"
+                        android:textColor="@color/colorAccent"
+                        android:gravity="center"/>
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:backgroundTint="@color/colorPrimary"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_add"/>
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+
+        <!-- All Locations section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.45"
+            android:orientation="horizontal">
+            <ListView
+                android:id="@+id/locationList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </ListView>
+        </LinearLayout>
+
+        <!-- Options section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.15"
+            android:orientation="horizontal">
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/colorPrimary"
+                android:onClick="onUpdateClicked"
+                android:src="@drawable/ic_refresh"
+                android:layout_weight="0.5"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@color/colorAccent"
+                android:text="Sign out"
+                android:layout_weight="0.5"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

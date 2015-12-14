@@ -1,4 +1,4 @@
-package ca.usherbrooke.koopa.udesvolumecontrol;
+package ca.usherbrooke.koopa.udesvolumecontrol.client;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
