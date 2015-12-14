@@ -26,28 +26,28 @@ public class VolumeControlService extends Service implements LocationListener
     private static final int DIS_BTW_UPDATE = 10; // 10 meter
     private final IBinder binder = new VolumeControlServiceBinder();
     private Vector<VolumeEntry> allEntries;
+
     public class VolumeControlServiceBinder extends Binder
     {
         VolumeControlService getService() {
             return VolumeControlService.this;
         }
     }
-    //START With ==> ComponentName service = startService(new Intent(getBaseContext(), VolumeControlService.class));
+
     @Override
     public void onCreate()
     {
         Toast.makeText(this, "Service : Started ", Toast.LENGTH_SHORT).show();
+
         audioMan = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-
-
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             Toast.makeText(this, "Service : Permissions are not granted ", Toast.LENGTH_SHORT).show();
             return;
         }
+
         locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 MIN_BTW_UPDATE,
                 DIS_BTW_UPDATE, this);
@@ -72,6 +72,7 @@ public class VolumeControlService extends Service implements LocationListener
                     Toast.makeText(getBaseContext(), "Entering Zone " + currentZoneName, Toast.LENGTH_SHORT).show();
                     audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, entry.getNotificationVolume(), 0);
                     audioMan.setStreamVolume(AudioManager.STREAM_RING, entry.getRingtoneVolume(), 0);
+                    audioMan.setRingerMode(entry.doesVibrate()? AudioManager.RINGER_MODE_NORMAL : AudioManager.RINGER_MODE_SILENT);
                 }
                 break;
             }
@@ -80,13 +81,11 @@ public class VolumeControlService extends Service implements LocationListener
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras)
-    {
-    }
+    {}
 
     @Override
     public void onProviderEnabled(String provider)
-    {
-    }
+    {}
 
     @Override
     public void onProviderDisabled(String provider)
@@ -100,8 +99,6 @@ public class VolumeControlService extends Service implements LocationListener
         Toast.makeText(this, "Service: " + newAllEntries.size() + " entries added", Toast.LENGTH_SHORT).show();
         allEntries = newAllEntries;
     }
-
-
 }
 
 

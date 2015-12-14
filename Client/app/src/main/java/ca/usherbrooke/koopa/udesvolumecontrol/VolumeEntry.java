@@ -1,6 +1,5 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
-import android.content.Context;
 import android.location.Location;
 
 public class VolumeEntry
@@ -10,14 +9,16 @@ public class VolumeEntry
     private Location location;
     private int radius;
     private String entryName;
+    private boolean doesVibrate;
 
-    public VolumeEntry(String name, Location loc, int rad,int ringtone, int notification)
+    public VolumeEntry(String name, Location loc, int rad,int ringtone, int notification, boolean vibration)
     {
         entryName = name;
         ringtoneVolume = ringtone;
         notificationVolume = notification;
         location = loc;
         radius = rad;
+        doesVibrate = vibration;
     }
 
     public boolean isInside(Location otherLocation)
@@ -49,5 +50,10 @@ public class VolumeEntry
     public Integer getNotificationVolume()
     {
         return notificationVolume;
+    }
+
+    public boolean doesVibrate()
+    {
+        return doesVibrate;
     }
 }
