@@ -124,6 +124,12 @@ public class VolumeControlService extends Service implements LocationListener
     }
 
 
+    public void setAllEntries(Vector<VolumeEntry> newAllEntries)
+    {
+        allEntries = newAllEntries;
+    }
+
+
 }
 
 
