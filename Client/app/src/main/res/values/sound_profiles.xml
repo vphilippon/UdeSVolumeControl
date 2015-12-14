@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_silent">Silent</string>
+    <string name="profile_vibrate">Vibrate</string>
+    <string name="profile_sound">Sound</string>
+</resources>
