@@ -58,27 +58,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         {
             serv = ((VolumeControlService.VolumeControlServiceBinder)service).getService();
 //             /*TODO: temp Code*/
-            Vector<VolumeEntry> allEntries = new Vector<>();
-            {
-
-                Location tempLoc = new Location(LocationManager.GPS_PROVIDER);
-                tempLoc.setLatitude(45.381);
-                tempLoc.setLongitude(-71.9272000);
-                allEntries.add(new VolumeEntry("DOWN", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30, 0, 0));
-            }
-            {
-                Vector<Integer> temp = new Vector<Integer>();
-                Random rand = new Random();
-                for (int i = 0; i < AudioManager.NUM_STREAMS; ++i)
-                {
-                    temp.add(100);
-                }
-                Location tempLoc = new Location(LocationManager.GPS_PROVIDER);
-                tempLoc.setLatitude(45.38);
-                tempLoc.setLongitude(-71.9272);
-                allEntries.add(new VolumeEntry("UP", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30,0,0));
-            }
-            serv.setAllEntries(allEntries);
+//            Vector<VolumeEntry> allEntries = new Vector<>();
+//            {
+//
+//                Location tempLoc = new Location(LocationManager.GPS_PROVIDER);
+//                tempLoc.setLatitude(45.381);
+//                tempLoc.setLongitude(-71.9272000);
+//                allEntries.add(new VolumeEntry("DOWN", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30, 0, 0));
+//            }
+//            {
+//                Vector<Integer> temp = new Vector<Integer>();
+//                Random rand = new Random();
+//                for (int i = 0; i < AudioManager.NUM_STREAMS; ++i)
+//                {
+//                    temp.add(100);
+//                }
+//                Location tempLoc = new Location(LocationManager.GPS_PROVIDER);
+//                tempLoc.setLatitude(45.38);
+//                tempLoc.setLongitude(-71.9272);
+//                allEntries.add(new VolumeEntry("UP", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30,0,0));
+//            }
+//            serv.setAllEntries(allEntries);
 //        /*TODO: temp Code*/
         }
 
