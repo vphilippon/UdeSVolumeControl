@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         public void onServiceConnected(ComponentName name, IBinder service)
         {
             serv = ((VolumeControlService.VolumeControlServiceBinder)service).getService();
-             /*TODO: temp Code*/
+//             /*TODO: temp Code*/
             Vector<VolumeEntry> allEntries = new Vector<>();
             {
 
@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 allEntries.add(new VolumeEntry("UP", tempLoc  /*locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)*/, 30,0,0));
             }
             serv.setAllEntries(allEntries);
-        /*TODO: temp Code*/
+//        /*TODO: temp Code*/
         }
 
         @Override
