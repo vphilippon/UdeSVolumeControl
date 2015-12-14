@@ -1,4 +1,4 @@
-package ca.usherbrooke.koopa.udesvolumecontrol.Network;
+package utils;
 
 import java.io.*;
 import java.net.*;

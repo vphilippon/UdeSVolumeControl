@@ -1,4 +1,4 @@
-package ca.usherbrooke.koopa.udesvolumecontrol.Network;
+package message;
 
 public class PostNewUserRequest extends Request {
 	private static final long serialVersionUID = 6944803503028445195L;

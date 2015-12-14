@@ -1,4 +1,4 @@
-package ca.usherbrooke.koopa.udesvolumecontrol.Network;
+package message;
 
 import java.io.Serializable;
 

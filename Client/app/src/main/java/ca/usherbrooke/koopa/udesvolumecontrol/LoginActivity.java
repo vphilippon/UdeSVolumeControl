@@ -3,27 +3,28 @@ package ca.usherbrooke.koopa.udesvolumecontrol;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-import ca.usherbrooke.koopa.udesvolumecontrol.Network.ClientUDP;
-import ca.usherbrooke.koopa.udesvolumecontrol.Network.PostNewUserReply;
-import ca.usherbrooke.koopa.udesvolumecontrol.Network.PostNewUserRequest;
-import ca.usherbrooke.koopa.udesvolumecontrol.Network.Serializer;
+import message.ExistsUserReply;
+import message.ExistsUserRequest;
+import message.HelloWorldMessage;
+import message.PostNewUserReply;
+import message.PostNewUserRequest;
+import utils.ClientUDP;
+import utils.Serializer;
 
 /**
  * A login screen that offers login via email/password.
@@ -202,12 +203,19 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             try {
                 ClientUDP cl = new ClientUDP(1000);
-                cl.connect("localhost", 9005);
+                cl.connect("10.44.88.174", 9005);
 
-                cl.send(Serializer.serialize(new PostNewUserRequest(mUsername))); // TODO : Need to change for check good one
+                cl.send(Serializer.serialize(new ExistsUserRequest(mUsername)));
 
                 DatagramPacket rep = cl.receive();
-                PostNewUserReply mess = (PostNewUserReply) Serializer.deserialize(rep.getData()); // TODO : Need to change for check good one
+                ExistsUserReply mess = (ExistsUserReply) Serializer.deserialize(rep.getData());
+
+                if (mess.isExisting())
+                {
+                    Intent myIntent = new Intent(LoginActivity.this, ListActivity.class);
+                    startActivity(myIntent);
+                    return true;
+                }
 
             }  catch (IOException | ClassNotFoundException e) {
                 // TODO Auto-generated catch block
@@ -222,7 +230,11 @@ public class LoginActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (!success) {
+                Toast.makeText(getApplicationContext(), "Invalid user!", Toast.LENGTH_LONG).show();
+            }
+            else
+            {
                 finish();
             }
         }
@@ -250,15 +262,18 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             try {
                 ClientUDP cl = new ClientUDP(1000);
-                cl.connect("localhost", 9005);
+                cl.connect("10.44.88.174", 9005);
 
                 cl.send(Serializer.serialize(new PostNewUserRequest(mUsername)));
 
                 DatagramPacket rep = cl.receive();
                 PostNewUserReply mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
 
-            }  catch (IOException | ClassNotFoundException e) {
-                // TODO Auto-generated catch block
+                return mess.isSuccess();
+
+            }  catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
@@ -267,17 +282,21 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
+            mCreateUserTask = null;
             showProgress(false);
 
             if (success) {
-                finish();
+                Toast.makeText(getApplication(), "User create, Sign up now!", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Toast.makeText(getApplication(), "Can't create user!", Toast.LENGTH_SHORT).show();
             }
         }
 
         @Override
         protected void onCancelled() {
-            mAuthTask = null;
+            mCreateUserTask = null;
             showProgress(false);
         }
     }
