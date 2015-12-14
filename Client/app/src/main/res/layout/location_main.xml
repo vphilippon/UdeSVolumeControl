@@ -39,7 +39,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:scaleType="center"
-            android:backgroundTint="@color/colorPrimary"
             android:src="@drawable/ic_edit"/>
 
     </LinearLayout>
@@ -52,7 +51,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:scaleType="center"
-            android:backgroundTint="@color/colorPrimary"
             android:src="@drawable/ic_delete"/>
     </LinearLayout>
 </LinearLayout>

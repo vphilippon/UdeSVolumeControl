@@ -1,4 +1,4 @@
-package ca.usherbrooke.koopa.udesvolumecontrol.client;
+package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import ca.usherbrooke.koopa.udesvolumecontrol.common.Location;
 
 /**
  * Created by clom1806 on 2015-12-02.

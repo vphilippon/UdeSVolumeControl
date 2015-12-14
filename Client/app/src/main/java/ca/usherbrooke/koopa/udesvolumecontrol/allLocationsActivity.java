@@ -2,32 +2,34 @@
 //Zachary Duquette 11 011 978
 //Kevin Labrie 12 113 777
 //Julien Meunier 10 078 943
-//Vincent Philippon
-package ca.usherbrooke.koopa.udesvolumecontrol.client;
+//TODO Vincent Philippon add matricule
+package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import java.util.ArrayList;
-import ca.usherbrooke.koopa.udesvolumecontrol.common.Location;
-import ca.usherbrooke.koopa.udesvolumecontrol.common.SoundProfile;
-import ca.usherbrooke.koopa.udesvolumecontrol.common.SoundProfiles;
 
 public class allLocationsActivity extends Activity {
 
     private ListAdapter m_locationListAdapter;
     private ArrayList<Location> m_allLocations = new ArrayList<Location>();
-
-    //Service
-    //HockeyNightUpdaterService mService;
-    //HockeyNightServiceConnection mServiceConnection;
-    //boolean mBound;
+    private Boolean testBool = false;
+    //TODO merge with julien, add service variables here
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
+
+        //TODO merge with Julien start and bind service here (Or make sure it is bound :P)
+
         update();
     };
 
@@ -39,8 +41,7 @@ public class allLocationsActivity extends Activity {
     public void onResume()
     {
         super.onResume();
-        //Intent serviceIntent = new Intent(this, HockeyNightUpdaterService.class);
-        //bindService(serviceIntent, mServiceConnection, Context.BIND_ADJUST_WITH_ACTIVITY);
+        //TODO merge with Julien. Make sure service is bound (If we unbind it in pause, etc.)
     }
 
     @Override
@@ -52,13 +53,37 @@ public class allLocationsActivity extends Activity {
         update();
     }
 
+    public void onSignOut(View v){
+        signOut();
+    }
+
+    private void signOut(){
+        //TODO merge with Julien Unbind service
+    }
+
     private void update()
     {
         ListView eventList = (ListView) findViewById(R.id.locationList);
 
-        //Refresh current location
+        //TODO merge with julien Refresh current location
+        //currentLocation = service.get
+        testBool = !testBool;
+        if(testBool){ //currentLocation == null{
+            LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
+            knownLocationLayout.setVisibility(View.GONE);
 
-        //Get real list
+            LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
+            unknownLocationLayout.setVisibility(View.VISIBLE);
+        }
+        else{
+            LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
+            knownLocationLayout.setVisibility(View.VISIBLE);
+
+            LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
+            unknownLocationLayout.setVisibility(View.GONE);
+        }
+
+        //TODO merge with Vincent Get real list from server
         if (eventList != null) {
             m_allLocations.add(new Location("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
 //            m_allLocations.add(new Location("Work", new SoundProfile(SoundProfiles.SILENT, 100)));

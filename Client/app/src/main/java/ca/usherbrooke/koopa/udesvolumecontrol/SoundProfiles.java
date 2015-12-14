@@ -1,4 +1,4 @@
-package ca.usherbrooke.koopa.udesvolumecontrol.common;
+package ca.usherbrooke.koopa.udesvolumecontrol;
 
 /**
  * Created by clom1806 on 2015-12-11.
