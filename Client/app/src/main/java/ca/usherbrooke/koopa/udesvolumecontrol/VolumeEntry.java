@@ -1,29 +1,21 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
+import android.content.Context;
 import android.location.Location;
 
-import java.util.Vector;
-
-/**
- * Created by meuj1902 on 2015-11-30.
- */
 public class VolumeEntry
 {
-    private Vector<Integer> allVolumes;
+    private Integer  ringtoneVolume;
+    private Integer  notificationVolume;
     private Location location;
     private int radius;
     private String entryName;
 
-    /*
-        @param loc : location
-        @param rad : radius in meter
-        @param volumes : volumes for thi device. see
-
-     */
-    public VolumeEntry(String name, Location loc, int rad,Vector<Integer> volumes)
+    public VolumeEntry(String name, Location loc, int rad,int ringtone, int notification)
     {
         entryName = name;
-        allVolumes = volumes;
+        ringtoneVolume = ringtone;
+        notificationVolume = notification;
         location = loc;
         radius = rad;
     }
@@ -34,9 +26,28 @@ public class VolumeEntry
         return locationDist < radius;
     }
 
-    public Vector<Integer> getAllVolumes()
+    public Location getLocation()
     {
-        return allVolumes;
+        return location;
     }
-    public String getEntryName() { return entryName; }
+
+    public int getRadius()
+    {
+        return radius;
+    }
+
+    public String getEntryName()
+    {
+        return entryName;
+    }
+
+    public Integer getRingtoneVolume()
+    {
+        return ringtoneVolume;
+    }
+
+    public Integer getNotificationVolume()
+    {
+        return notificationVolume;
+    }
 }

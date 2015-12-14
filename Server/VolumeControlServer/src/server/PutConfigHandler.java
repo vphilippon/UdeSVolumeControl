@@ -11,8 +11,13 @@ import message.PutConfigRequest;
 import model.Config;
 
 public class PutConfigHandler extends DBHandler {
-	private static final String INSERT_STMT = "INSERT INTO \"Config\" (\"zone\", \"volumeMain\", \"userId\") VALUES (?, ?, ?);";
-	private static final String UPDATE_STMT = "UPDATE \"Config\" SET(\"zone\", \"volumeMain\", \"userId\") = (?, ?, ?) WHERE \"configId\" = ? ;";
+	private static final String INSERT_STMT = 
+			"INSERT INTO \"Config\" (\"configName\", \"zone\", \"volumeRingtone\", \"volumeNotification\", \"userId\") " +
+			"VALUES (?, ?, ?, ?, ?);";
+	
+	private static final String UPDATE_STMT = 
+			"UPDATE \"Config\" SET(\"configName\", \"zone\", \"volumeRingtone\", \"volumeNotification\") = (?, ?, ?, ?) " +
+			"WHERE \"configId\" = ?;";
 	
 	public PutConfigReply handle(PutConfigRequest request) {
 		PutConfigReply reply = new PutConfigReply(false);
@@ -24,21 +29,23 @@ public class PutConfigHandler extends DBHandler {
 			Config conf = request.getUpdatedConfig();
 			
 			// If null, it's new one, else it's an update
-			// Integer id, {Integer x, Integer y, Double radius}, Integer volumeMain, Integer userId
 			if(conf.getConfigId() == null) {
 				PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
+				ps.setObject(1, conf.getConfigName());
 				PGcircle zone = new PGcircle(conf.getCenterX(), conf.getCenterY(), conf.getRadius());
-				ps.setObject(1, zone);
-				ps.setInt(2, conf.getVolumeMain());
-				ps.setString(3, request.getUserId());
+				ps.setObject(2, zone);
+				ps.setInt(3, conf.getVolumeRingtone());
+				ps.setInt(4, conf.getVolumeNotification());
+				ps.setString(5, request.getUserId());
 				ps.executeUpdate();
 			} else {
 				PreparedStatement ps = conn.prepareStatement(UPDATE_STMT);
+				ps.setObject(1, conf.getConfigName());
 				PGcircle zone = new PGcircle(conf.getCenterX(), conf.getCenterY(), conf.getRadius());
-				ps.setObject(1, zone);
-				ps.setInt(2, conf.getVolumeMain());
-				ps.setString(3, request.getUserId());
-				ps.setInt(4, conf.getConfigId()); // WHERE
+				ps.setObject(2, zone);
+				ps.setInt(3, conf.getVolumeRingtone());
+				ps.setInt(4, conf.getVolumeNotification());
+				ps.setInt(5, conf.getConfigId()); // WHERE
 				ps.executeUpdate();
 			}
 			
