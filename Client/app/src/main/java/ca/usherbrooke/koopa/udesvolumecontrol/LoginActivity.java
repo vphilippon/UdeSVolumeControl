@@ -21,7 +21,6 @@ import java.net.DatagramPacket;
 
 import message.ExistsUserReply;
 import message.ExistsUserRequest;
-import message.HelloWorldMessage;
 import message.PostNewUserReply;
 import message.PostNewUserRequest;
 import utils.ClientUDP;
@@ -31,11 +30,6 @@ import utils.Serializer;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
-
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -53,8 +47,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
+
+        startService(new Intent(this, VolumeControlService.class));
+
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
-//
+
         Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -219,7 +216,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
             }  catch (IOException | ClassNotFoundException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -272,9 +268,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 return mess.isSuccess();
 
-            }  catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            }  catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
