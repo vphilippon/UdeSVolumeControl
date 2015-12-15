@@ -2,29 +2,27 @@ package server;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.DatagramPacket;
-
 import message.DeleteVolumeConfigRequest;
 import message.ExistsUserRequest;
 import message.GetVolumeConfigsRequest;
 import message.HelloWorldMessage;
 import message.PostNewUserRequest;
 import message.PutVolumeConfigRequest;
-import utils.ClientUDP;
+import utils.ClientTCP;
 import utils.Serializer;
 
 public class MessageHandler implements Runnable {
 
-	DatagramPacket _receivedData;
+	ClientTCP _cl;
 	
-	public MessageHandler(DatagramPacket data) {
-		_receivedData = data;
+	public MessageHandler(ClientTCP cl) {
+		_cl = cl;
 	}
 
 	@Override
 	public void run() {
 		try {
-			Object receivedMessage = Serializer.deserialize(_receivedData.getData());
+			Object receivedMessage = _cl.receive();
 			System.out.println(receivedMessage);
 			
 			Serializable reply = null;
@@ -53,11 +51,10 @@ public class MessageHandler implements Runnable {
 			}
 
 			if(reply != null) {
-				ClientUDP cl = new ClientUDP(0);
-				cl.connect(_receivedData.getSocketAddress());
-				cl.send(Serializer.serialize(reply));
+				_cl.send(Serializer.serialize(reply));
 				System.out.println("REPLY SENT");
 			}
+			_cl.close();
 			
 		} catch (ClassNotFoundException | IOException e1) {
 			e1.printStackTrace();

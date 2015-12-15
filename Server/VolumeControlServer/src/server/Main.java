@@ -1,11 +1,11 @@
 package server;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
+import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import utils.ClientUDP;
+import utils.ClientTCP;
 
 public class Main {
 	public static final int DEFAULT_POOL_SIZE = 10;
@@ -18,22 +18,31 @@ public class Main {
 		
 		ExecutorService pool = Executors.newFixedThreadPool(DEFAULT_POOL_SIZE);
 		
+		ServerSocket ss = null;
 		try {
-			ClientUDP cl = new ClientUDP(0);
-			cl.bind(Integer.valueOf(port));
+			ss = new ServerSocket(Integer.valueOf(port));
 			
 			while(true) {
-				DatagramPacket data = cl.receive();
+				ClientTCP cl = new ClientTCP(ss.accept());
+				cl.bind();
 				
-				System.out.println("Datagram received");
+				System.out.println("Connection received");
 				
-				pool.execute(new MessageHandler(data));
+				pool.execute(new MessageHandler(cl));
 			}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if(ss != null) {
+				try {
+					ss.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
+		
 	}
 
 }
