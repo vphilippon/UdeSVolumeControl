@@ -5,10 +5,10 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 
 import message.ExistsUserRequest;
-import message.GetUserConfigsRequest;
+import message.GetVolumeConfigsRequest;
 import message.HelloWorldMessage;
 import message.PostNewUserRequest;
-import message.PutConfigRequest;
+import message.PutVolumeConfigRequest;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -38,12 +38,12 @@ public class MessageHandler implements Runnable {
 			} else if(receivedMessage instanceof ExistsUserRequest) {
 				System.out.println("User exists request");
 				reply = new ExistsUserHandler().handle((ExistsUserRequest) receivedMessage);
-			} else if(receivedMessage instanceof GetUserConfigsRequest) {
+			} else if(receivedMessage instanceof GetVolumeConfigsRequest) {
 				System.out.println("Get user configs request");
-				reply = new GetUserConfigsHandler().handle((GetUserConfigsRequest) receivedMessage);
-			} else if(receivedMessage instanceof PutConfigRequest) {
+				reply = new GetVolumeConfigsHandler().handle((GetVolumeConfigsRequest) receivedMessage);
+			} else if(receivedMessage instanceof PutVolumeConfigRequest) {
 				System.out.println("Put config request");
-				reply = new PutConfigHandler().handle((PutConfigRequest) receivedMessage);
+				reply = new PutVolumeConfigHandler().handle((PutVolumeConfigRequest) receivedMessage);
 			} else {
 				System.err.println("Unknown message type received");
 			}
