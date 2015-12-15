@@ -213,6 +213,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (mess.isExisting())
                 {
                     Intent myIntent = new Intent(LoginActivity.this, AllLocationsActivity.class);
+                    myIntent.putExtra("userName",mUsername);
                     startActivity(myIntent);
                     return true;
                 }

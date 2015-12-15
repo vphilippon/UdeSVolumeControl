@@ -8,16 +8,16 @@ public class VolumeConfig implements Serializable{
 	private Integer _id;
 	private String _name;
 	private Double _longitude;
-	private Double _lattidude;
+	private Double _latitude;
     private Integer _radius;
     private Integer _profile;
 
 	public VolumeConfig(Integer id, String name,
-			Double longitude, Double lattitude, Integer radius, Integer profile) {
+			Double longitude, Double latitude, Integer radius, Integer profile) {
 		_id = id;
 		_name = name;
 		_longitude = longitude;
-		_lattidude = lattitude;
+		_latitude = latitude;
 		_radius = radius;
 		_profile = profile;
 	}
@@ -46,12 +46,12 @@ public class VolumeConfig implements Serializable{
 		_longitude = longitude;	
 	}
 	
-	public Double getLattitude() {
-		return _lattidude;
+	public Double getLatitude() {
+		return _latitude;
 	}
 	
-	public void setLattitude(Double lattitude) {
-		_lattidude = lattitude;	
+	public void setLatitude(Double lattitude) {
+		_latitude = lattitude;
 	}
 	
 	public Integer getRadius() {

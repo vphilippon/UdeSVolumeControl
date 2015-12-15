@@ -18,6 +18,7 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -28,12 +29,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Vector;
 
 import message.DeleteVolumeConfigReply;
 import message.DeleteVolumeConfigRequest;
 import message.GetVolumeConfigsReply;
 import message.GetVolumeConfigsRequest;
+import message.PutVolumeConfigReply;
 import message.PutVolumeConfigRequest;
 import model.VolumeConfig;
 import utils.ClientUDP;
@@ -43,6 +46,10 @@ public class AllLocationsActivity  extends Activity {
 
     protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  };
 
+    static final int MODIFY_CONFIG = 1;
+    static final int ADD_CONFIG = 2;
+
+    private String mUsername;
     private ListAdapter m_locationListAdapter;
     private ArrayList<VolumeConfig> m_volumeConfigs = new ArrayList<VolumeConfig>();
     VolumeControlService m_volumeControlService = null;
@@ -68,6 +75,7 @@ public class AllLocationsActivity  extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
+        mUsername = getIntent().getStringExtra("userName");
         doBindService();
 
         m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
@@ -109,10 +117,8 @@ public class AllLocationsActivity  extends Activity {
     }
 
     public void onEditCurrentClicked(View v){
-        //TODO merge with Zach and start activity
-
         ImageButton button = (ImageButton) v;
-        VolumeConfig configToEdit;
+        VolumeConfig configToEdit = null;
         if(button.getId() == R.id.locationListEdit)
         {
             ListView listView = (ListView) findViewById(R.id.locationList);
@@ -134,6 +140,10 @@ public class AllLocationsActivity  extends Activity {
                 }
             }
         }
+        Intent myIntent = new Intent(AllLocationsActivity.this, MapsActivity.class);
+        myIntent.putExtra("configToEdit",configToEdit);
+        myIntent.putExtra("otherConfigs", m_volumeConfigs);
+        startActivityForResult(myIntent, MODIFY_CONFIG);
     }
 
     public void onDeleteCurrentClicked(View v){
@@ -185,7 +195,9 @@ public class AllLocationsActivity  extends Activity {
     }
 
     public void onAddNewLocationClicked(View v){
-        //TODO merge with Zach and start activity
+        Intent myIntent = new Intent(AllLocationsActivity.this, MapsActivity.class);
+        myIntent.putExtra("otherConfigs", m_volumeConfigs);
+        startActivityForResult(myIntent,ADD_CONFIG);
     }
 
     public void onUpdateClicked(View v) {
@@ -224,21 +236,16 @@ public class AllLocationsActivity  extends Activity {
         ListView eventList = (ListView) findViewById(R.id.locationList);
         if (eventList != null) {
 
-            DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.REFRESH, "ff", null); // TODO change for real username
+            DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.REFRESH, mUsername, null);
             refreshTask.execute();
 
             eventList.setAdapter(m_locationListAdapter);
-
-            // TODO MAXIME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // TODO Voici comment moi je faisait pour set toutes les choses. Je ne comprends pas a quoi sert le Location que vous avez cree (que j'ai renomme OurLocation pour pas avoir de conflit avec Location d'Android
-            // Et j'ai pas compris a quoi sers SoundProfile et SoundProfileS
-
 
             Vector<VolumeEntry> TemporaireAllEntries = new Vector<VolumeEntry>();
 
             for (VolumeConfig conf : m_volumeConfigs) {
                 Location aLocationFromJavaLocationClass = new Location(LocationManager.GPS_PROVIDER);
-                aLocationFromJavaLocationClass.setLatitude(conf.getLattitude());
+                aLocationFromJavaLocationClass.setLatitude(conf.getLatitude());
                 aLocationFromJavaLocationClass.setLongitude(conf.getLongitude());
 
                 int ringtone = 0;
@@ -271,10 +278,29 @@ public class AllLocationsActivity  extends Activity {
 
     private void onDeleteYesClick(VolumeConfig conf){
 
-        DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.DELETE, "ff", conf); // TODO change for real username
+        DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.DELETE, mUsername, conf);
         refreshTask.execute();
         update();
     }
+    
+    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    {
+        //TODO replace with sending to server async task.
+        VolumeConfig config = (VolumeConfig) data.getSerializableExtra("VolumeConfig");
+        DatabaseRequestTask refreshTask;
+
+        if (requestCode == MODIFY_CONFIG) {
+            refreshTask = new DatabaseRequestTask(this, DatabaseRequests.EDIT, mUsername, config);
+        }
+        else
+        {
+            refreshTask = new DatabaseRequestTask(this, DatabaseRequests.ADD, mUsername, config);
+        }
+
+        refreshTask.execute();
+        update();
+    }
+
 
     protected void refreshList()
     {
@@ -314,7 +340,7 @@ public class AllLocationsActivity  extends Activity {
                         cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, m_config)));
                         break;
                     case DELETE:
-                        cl.send(Serializer.serialize(new DeleteVolumeConfigRequest("ff", m_config.getId())));
+                        cl.send(Serializer.serialize(new DeleteVolumeConfigRequest(mUsername, m_config.getId())));
                         break;
                     case ADD:
                         cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, m_config)));
@@ -330,14 +356,14 @@ public class AllLocationsActivity  extends Activity {
                         addConfigs(messRefresh.getConfigs());
                         return messRefresh.isSuccess();
                     case EDIT:
-                        //mess = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
-                        break;
+                        PutVolumeConfigReply messEdit = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        return messEdit.isSuccess();
                     case DELETE:
                         DeleteVolumeConfigReply messDelete = (DeleteVolumeConfigReply) Serializer.deserialize(rep.getData());
                         return messDelete.isSuccess();
                     case ADD:
-                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
-                        break;
+                        PutVolumeConfigReply messAdd = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        return messAdd.isSuccess();
                 }
                 //addConfigs(new ArrayList<VolumeConfig>());
 
@@ -359,10 +385,6 @@ public class AllLocationsActivity  extends Activity {
             for (VolumeConfig conf : configs) {
                 m_volumeConfigs.add(conf);
             }
-            m_volumeConfigs.add(new VolumeConfig(0, "Test", 2.0, 2.0, 50, 1));
-
         }
     }
-
-
 }

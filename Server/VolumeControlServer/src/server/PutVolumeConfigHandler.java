@@ -32,7 +32,7 @@ public class PutVolumeConfigHandler extends DBHandler {
 			if(conf.getId() == null) {
 				PreparedStatement ps = conn.prepareStatement(INSERT_STMT);
 				ps.setObject(1, conf.getName());
-				PGcircle zone = new PGcircle(conf.getLongitude(), conf.getLattitude(), conf.getRadius());
+				PGcircle zone = new PGcircle(conf.getLongitude(), conf.getLatitude(), conf.getRadius());
 				ps.setObject(2, zone);
 				ps.setInt(3, conf.getProfile());
 				ps.setString(4, request.getUserId());
@@ -40,7 +40,7 @@ public class PutVolumeConfigHandler extends DBHandler {
 			} else {
 				PreparedStatement ps = conn.prepareStatement(UPDATE_STMT);
 				ps.setObject(1, conf.getName());
-				PGcircle zone = new PGcircle(conf.getLongitude(), conf.getLattitude(), conf.getRadius());
+				PGcircle zone = new PGcircle(conf.getLongitude(), conf.getLatitude(), conf.getRadius());
 				ps.setObject(2, zone);
 				ps.setInt(3, conf.getProfile());
 				ps.setInt(4, conf.getId()); // WHERE
