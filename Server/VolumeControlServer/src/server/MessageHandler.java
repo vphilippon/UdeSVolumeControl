@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 
+import message.DeleteVolumeConfigRequest;
 import message.ExistsUserRequest;
 import message.GetVolumeConfigsRequest;
 import message.HelloWorldMessage;
@@ -44,6 +45,9 @@ public class MessageHandler implements Runnable {
 			} else if(receivedMessage instanceof PutVolumeConfigRequest) {
 				System.out.println("Put config request");
 				reply = new PutVolumeConfigHandler().handle((PutVolumeConfigRequest) receivedMessage);
+			} else if(receivedMessage instanceof DeleteVolumeConfigRequest) {
+				System.out.println("Delete config request");
+				reply = new DeleteVolumeConfigHandler().handle((DeleteVolumeConfigRequest) receivedMessage);
 			} else {
 				System.err.println("Unknown message type received");
 			}

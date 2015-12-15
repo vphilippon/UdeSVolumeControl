@@ -1,6 +1,6 @@
 ﻿-- Database: "IFT604_Project"
 
-DROP DATABASE "IFT604_Project";
+-- DROP DATABASE "IFT604_Project";
 
 CREATE DATABASE "IFT604_Project"
   WITH OWNER = ift604
