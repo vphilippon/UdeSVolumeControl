@@ -8,18 +8,18 @@ import java.util.ArrayList;
 
 import org.postgresql.geometric.PGcircle;
 
-import message.GetUserConfigsReply;
-import message.GetUserConfigsRequest;
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
 import model.VolumeConfig;
 
-public class GetUserConfigsHandler extends DBHandler{
+public class GetVolumeConfigsHandler extends DBHandler{
 	private static final String SELECT_STMT = 
 			"SELECT \"id\", \"name\", \"zone\", \"profile\" " +
 			"FROM \"VolumeConfig\" WHERE \"userId\" = ?;";
 	
-	public GetUserConfigsReply handle(GetUserConfigsRequest request) {
+	public GetVolumeConfigsReply handle(GetVolumeConfigsRequest request) {
 		
-		GetUserConfigsReply reply = new GetUserConfigsReply(false, null);
+		GetVolumeConfigsReply reply = new GetVolumeConfigsReply(false, null);
 		
 		Connection conn = null;
 		try {

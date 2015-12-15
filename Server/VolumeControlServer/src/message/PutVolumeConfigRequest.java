@@ -2,12 +2,12 @@ package message;
 
 import model.VolumeConfig;
 
-public class PutConfigRequest extends Request {
+public class PutVolumeConfigRequest extends Request {
 	private static final long serialVersionUID = 7392193608035957632L;
 	
 	private VolumeConfig _updatedConfig;
 
-	public PutConfigRequest(String userId, VolumeConfig updatedConfigs) {
+	public PutVolumeConfigRequest(String userId, VolumeConfig updatedConfigs) {
 		super(userId);
 		_updatedConfig = updatedConfigs;
 	}

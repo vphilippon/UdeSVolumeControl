@@ -9,7 +9,8 @@ CREATE TABLE "VolumeConfig"
   zone circle NOT NULL,
   "profile" integer NOT NULL,
   "userId" character varying(50) NOT NULL,
-  CONSTRAINT pk_config PRIMARY KEY ("id"),
+  CONSTRAINT pk_volumeconfig PRIMARY KEY ("id"),
+  CONSTRAINT "unique_name_userId" UNIQUE (name, "userId"),
   CONSTRAINT fk_user_volumeconfig FOREIGN KEY ("userId")
       REFERENCES "User" ("userId") MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE

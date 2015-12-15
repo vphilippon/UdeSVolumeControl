@@ -6,11 +6,11 @@ import java.sql.SQLException;
 
 import org.postgresql.geometric.PGcircle;
 
-import message.PutConfigReply;
-import message.PutConfigRequest;
+import message.PutVolumeConfigReply;
+import message.PutVolumeConfigRequest;
 import model.VolumeConfig;
 
-public class PutConfigHandler extends DBHandler {
+public class PutVolumeConfigHandler extends DBHandler {
 	private static final String INSERT_STMT = 
 			"INSERT INTO \"VolumeConfig\" (\"name\", \"zone\", \"profile\", \"userId\") " +
 			"VALUES (?, ?, ?, ?);";
@@ -19,8 +19,8 @@ public class PutConfigHandler extends DBHandler {
 			"UPDATE \"VolumeConfig\" SET(\"name\", \"zone\", \"profile\") = (?, ?, ?) " +
 			"WHERE \"id\" = ?;";
 	
-	public PutConfigReply handle(PutConfigRequest request) {
-		PutConfigReply reply = new PutConfigReply(false);
+	public PutVolumeConfigReply handle(PutVolumeConfigRequest request) {
+		PutVolumeConfigReply reply = new PutVolumeConfigReply(false);
 		
 		Connection conn = null;
 		try {

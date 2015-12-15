@@ -5,13 +5,13 @@ import java.net.DatagramPacket;
 
 import message.ExistsUserReply;
 import message.ExistsUserRequest;
-import message.GetUserConfigsReply;
-import message.GetUserConfigsRequest;
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
 import message.HelloWorldMessage;
 import message.PostNewUserReply;
 import message.PostNewUserRequest;
-import message.PutConfigReply;
-import message.PutConfigRequest;
+import message.PutVolumeConfigReply;
+import message.PutVolumeConfigRequest;
 import model.VolumeConfig;
 import utils.ClientUDP;
 import utils.Serializer;
@@ -51,21 +51,21 @@ public class DummyClient {
 			System.out.println(notexuser.isSuccess());
 			System.out.println(notexuser.isExisting());
 			
-			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new VolumeConfig(null, "UdeS", 1.0, 1.0, 2, 0))));
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "UdeS", 1.0, 1.0, 2, 0))));
 			data = cl.receive();
-			PutConfigReply newconf = (PutConfigReply) Serializer.deserialize(data.getData());
+			PutVolumeConfigReply newconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("NewConf: ");
 			System.out.println(newconf.isSuccess());
 			
-			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new VolumeConfig(1, "UdeS", 1.0, 1.0, 3, 1))));
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(1, "UdeS", 1.0, 1.0, 3, 1))));
 			data = cl.receive();
-			PutConfigReply updateconf = (PutConfigReply) Serializer.deserialize(data.getData());
+			PutVolumeConfigReply updateconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("UpdateConf: ");
 			System.out.println(updateconf.isSuccess());
 			
-			cl.send(Serializer.serialize(new GetUserConfigsRequest("TOTO3")));
+			cl.send(Serializer.serialize(new GetVolumeConfigsRequest("TOTO3")));
 			data = cl.receive();
-			GetUserConfigsReply confs = (GetUserConfigsReply) Serializer.deserialize(data.getData());
+			GetVolumeConfigsReply confs = (GetVolumeConfigsReply) Serializer.deserialize(data.getData());
 			System.out.println("Confs: ");
 			System.out.println(confs.isSuccess());
 			for (VolumeConfig c : confs.getConfigs()) {

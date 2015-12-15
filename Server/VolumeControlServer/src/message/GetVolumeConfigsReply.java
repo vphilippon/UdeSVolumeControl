@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 import model.VolumeConfig;
 
-public class GetUserConfigsReply extends Reply {
+public class GetVolumeConfigsReply extends Reply {
 	private static final long serialVersionUID = 7742995740092814903L;
 	
 	private ArrayList<VolumeConfig> _configs;
 
-	public GetUserConfigsReply(boolean success, ArrayList<VolumeConfig> volumeConfigs) {
+	public GetVolumeConfigsReply(boolean success, ArrayList<VolumeConfig> volumeConfigs) {
 		super(success);
 		_configs = volumeConfigs;
 	}
