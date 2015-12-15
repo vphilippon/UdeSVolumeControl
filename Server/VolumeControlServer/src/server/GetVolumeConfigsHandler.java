@@ -8,18 +8,18 @@ import java.util.ArrayList;
 
 import org.postgresql.geometric.PGcircle;
 
-import message.GetUserConfigsReply;
-import message.GetUserConfigsRequest;
-import model.Config;
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
+import model.VolumeConfig;
 
-public class GetUserConfigsHandler extends DBHandler{
+public class GetVolumeConfigsHandler extends DBHandler{
 	private static final String SELECT_STMT = 
-			"SELECT \"configId\", \"configName\", \"zone\", \"volumeRingtone\", \"volumeNotification\" " +
-			"FROM \"Config\" WHERE \"userId\" = ?;";
+			"SELECT \"id\", \"name\", \"zone\", \"profile\" " +
+			"FROM \"VolumeConfig\" WHERE \"userId\" = ?;";
 	
-	public GetUserConfigsReply handle(GetUserConfigsRequest request) {
+	public GetVolumeConfigsReply handle(GetVolumeConfigsRequest request) {
 		
-		GetUserConfigsReply reply = new GetUserConfigsReply(false, null);
+		GetVolumeConfigsReply reply = new GetVolumeConfigsReply(false, null);
 		
 		Connection conn = null;
 		try {
@@ -29,21 +29,19 @@ public class GetUserConfigsHandler extends DBHandler{
 			ps.setString(1, request.getUserId());
 			
 			ResultSet rs = ps.executeQuery();
-			ArrayList<Config> configs = new ArrayList<>();
+			ArrayList<VolumeConfig> volumeConfigs = new ArrayList<>();
 			while(rs.next()) {
-				Integer confId = rs.getInt("configId");
-				String confName = rs.getString("configName");
+				Integer confId = rs.getInt("id");
+				String confName = rs.getString("name");
 				PGcircle zone = (PGcircle)rs.getObject("zone");
-				Integer volumeRingtone = rs.getInt("volumeRingtone");
-				Integer volumeNotification = rs.getInt("volumeNotification");
-				configs.add(new Config(
+				Integer profile = rs.getInt("profile");
+				volumeConfigs.add(new VolumeConfig(
 						confId, confName, 
 						zone.center.x, zone.center.y, (int)zone.radius,
-						volumeRingtone, volumeNotification
-						));
+						profile));
 			}
 			
-			reply.setConfigs(configs);
+			reply.setConfigs(volumeConfigs);
 			reply.setSuccess(true);
 		} catch (SQLException e) {
 			e.printStackTrace();

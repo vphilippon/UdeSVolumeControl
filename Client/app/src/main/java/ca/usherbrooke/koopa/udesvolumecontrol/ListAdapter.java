@@ -10,17 +10,19 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import model.VolumeConfig;
+
+import static ca.usherbrooke.koopa.udesvolumecontrol.SoundProfiles.*;
+
 
 /**
  * Created by clom1806 on 2015-12-02.
  */
-public class ListAdapter extends ArrayAdapter<OurLocation> {
+public class ListAdapter extends ArrayAdapter<VolumeConfig> {
 
-        public ListAdapter(Context context, int resource, List<OurLocation> items) {
+        public ListAdapter(Context context, int resource, List<VolumeConfig> items) {
             super(context, resource, items);
         }
-
-        private String m_name;
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -33,21 +35,20 @@ public class ListAdapter extends ArrayAdapter<OurLocation> {
                 v = vi.inflate(R.layout.location_main, null);
             }
 
-            OurLocation ourLocationDetails = getItem(position);
-            m_name = ourLocationDetails.m_name;
+            VolumeConfig volumeConfig = getItem(position);
 
-            if (ourLocationDetails != null) {
+            if (volumeConfig != null) {
 
                 TextView locationName = (TextView) v.findViewById(R.id.locationName);
                 ImageView currentProfile = (ImageView) v.findViewById(R.id.currentSoundProfile);
 
                 if(locationName != null){
-                    locationName.setText(ourLocationDetails.m_name);
+                    locationName.setText(volumeConfig.getName());
                 }
 
                 if(currentProfile != null){
 
-                    switch (ourLocationDetails.m_profile.m_profile){
+                    switch (SoundProfiles.values()[volumeConfig.getProfile()]){
                         case SILENT:
                             currentProfile.setImageResource(R.drawable.ic_silent);
                             break;
@@ -66,9 +67,5 @@ public class ListAdapter extends ArrayAdapter<OurLocation> {
             }
 
             return v;
-        }
-
-        public String getLocationName(){
-            return m_name;
         }
 }

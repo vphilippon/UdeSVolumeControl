@@ -6,14 +6,15 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -21,17 +22,27 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
+import model.VolumeConfig;
+import utils.ClientUDP;
+import utils.Serializer;
 public class AllLocationsActivity extends Activity {
+    protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  };
 
     private ListAdapter m_locationListAdapter;
-    private ArrayList<OurLocation> m_allOurLocations = new ArrayList<OurLocation>();
+    private ArrayList<VolumeConfig> mVolumeConfigs = new ArrayList<VolumeConfig>();
     private Boolean testBool = false;
     VolumeControlService m_volumeControlServer = null;
     boolean m_isBound = false;
+
     private ServiceConnection m_volumeControlServiceConnection = new ServiceConnection()
     {
         @Override
@@ -53,6 +64,9 @@ public class AllLocationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
         doBindService();
+
+        m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
+
 //        update();
     };
 
@@ -95,11 +109,11 @@ public class AllLocationsActivity extends Activity {
 
     public void onDeleteCurrentClicked(View v){
         ImageButton button = (ImageButton) v;
-        String currentLocationName;
+        String currentLocationName = new String();
         if(button.getId() == R.id.locationListDelete)
         {
-            ListAdapter adapter = (ListAdapter) button.getParent();
-            currentLocationName = adapter.getLocationName();
+            //ListAdapter adapter = (ListAdapter) button.getParent();
+            //currentLocationName = adapter.getLocationName();
         }
         else
         {
@@ -138,11 +152,14 @@ public class AllLocationsActivity extends Activity {
 
     private void signOut(){
         doUnbindService();
+
+        Intent myIntent = new Intent(AllLocationsActivity.this, LoginActivity.class);
+        startActivity(myIntent);
+        finish();
     }
 
     private void update()
     {
-        ListView eventList = (ListView) findViewById(R.id.locationList);
 
         VolumeEntry currentLocation = m_volumeControlServer.getCurrentVolumeEntry();
         if(currentLocation == null){
@@ -156,20 +173,17 @@ public class AllLocationsActivity extends Activity {
             LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.VISIBLE);
 
+            m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
             LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.GONE);
         }
 
-        //TODO merge with Vincent Get real list from server
+        ListView eventList = (ListView) findViewById(R.id.locationList);
         if (eventList != null) {
-            m_allOurLocations.add(new OurLocation("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
-//            m_allOurLocations.add(new OurLocation("Work", new SoundProfile(SoundProfiles.SILENT, 100)));
-//            m_allOurLocations.add(new OurLocation("Home depot", new SoundProfile(SoundProfiles.SOUND, 100)));
-//            m_allOurLocations.add(new OurLocation("Bus stop", new SoundProfile(SoundProfiles.SOUND, 100)));
-//            m_allOurLocations.add(new OurLocation("Longest name ever for a location", new SoundProfile(SoundProfiles.SILENT, 100)));
-//            m_allOurLocations.add(new OurLocation("Bar", new SoundProfile(SoundProfiles.VIBRATE, 100)));
-//            m_allOurLocations.add(new OurLocation("School", new SoundProfile(SoundProfiles.VIBRATE, 100)));
-            m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_allOurLocations);
+
+            DatabaseRequestTask refreshTask = new DatabaseRequestTask(DatabaseRequests.REFRESH, "ff");
+            refreshTask.execute();
+
             eventList.setAdapter(m_locationListAdapter);
 
             // TODO MAXIME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -186,10 +200,93 @@ public class AllLocationsActivity extends Activity {
 
             VolumeEntry TempLoc = new VolumeEntry("Un Nom", aLocationFromJavaLocationClass, radius, ringtone, notificatiuon, vibrate);
             TemporaireAllEntries.add(TempLoc);
-
             // Ca erase les anciens entry et les remplace par les nouveaux.
             m_volumeControlServer.setAllEntries(TemporaireAllEntries);
 
         }
     }
+
+    public class DatabaseRequestTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final DatabaseRequests mRequest;
+        private final String mUsername;
+
+        DatabaseRequestTask(DatabaseRequests request, String username) {
+            mRequest = request;
+            mUsername = username;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+//            try {
+//                ClientUDP cl = new ClientUDP(1000);
+//                cl.connect("10.44.88.174", 9005);
+//
+//                switch (mRequest)
+//                {
+//                    case REFRESH:
+//                        cl.send(Serializer.serialize(new GetVolumeConfigsRequest(mUsername)));
+//                        break;
+//                    case EDIT:
+//                        //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+//                        break;
+//                    case DELETE:
+//                        //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+//                        break;
+//                    case ADD:
+//                        //cl.send(Serializer.serialize(new PutConfigRequest(mUsername)));
+//                        break;
+//                }
+//
+//                DatagramPacket rep = cl.receive();
+//
+//                switch (mRequest)
+//                {
+//                    case REFRESH:
+//                        GetVolumeConfigsReply mess = (GetVolumeConfigsReply) Serializer.deserialize(rep.getData());
+//                        addConfigs(mess.getConfigs());
+//                        return mess.isSuccess();
+//                    case EDIT:
+//                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+//                        break;
+//                    case DELETE:
+//                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+//                        break;
+//                    case ADD:
+//                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+//                        break;
+//                }
+                addConfigs(new ArrayList<VolumeConfig>());
+
+//            }  catch (IOException | ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
+
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
+            if (success) {
+                Toast.makeText(getApplication(), "Success!", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Toast.makeText(getApplication(), "Fail!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void addConfigs(ArrayList<VolumeConfig> configs)
+        {
+            mVolumeConfigs.clear();
+            for (VolumeConfig conf : configs) {
+                mVolumeConfigs.add(conf);
+            }
+            mVolumeConfigs.add(new VolumeConfig(0, "Test", 2.0, 2.0, 50, 1));
+
+        }
+    }
+
+
 }

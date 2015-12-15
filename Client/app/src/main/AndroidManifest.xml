@@ -25,9 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity"/>
-        <service android:name=".VolumeControlService" />
 
-        <!--<activity android:name=".AllLocationsActivity"/>-->
+        <service android:name=".VolumeControlService" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAbsfEHYIWSsY6C0xh_GCuelzuE6_tvjfE"/>
