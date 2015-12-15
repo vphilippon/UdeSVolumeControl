@@ -2,15 +2,12 @@ package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,14 +17,11 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.Vector;
-
-import message.PutConfigRequest;
-import model.Config;
+import model.VolumeConfig;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, TextWatcher, View.OnClickListener {
 
-    private Config mConfig;
+    private VolumeConfig mVolumeConfig;
     private GoogleMap mMap;
     private LatLng mCurrentLatLng;
     private EditText editNameTextView;
@@ -42,15 +36,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mConfig = new Config(1,"Home",20.d,10.d,100,1,1);
-        mConfig.setConfigName("Home");
-        mConfig.setRadius(50);
+        mVolumeConfig = new VolumeConfig(1,"Home",20.d,10.d,100,1,1);
+        mVolumeConfig.setConfigName("Home");
+        mVolumeConfig.setRadius(50);
 
         editNameTextView = (EditText)findViewById(R.id.editProfileNameText);
-        editNameTextView.setText(mConfig.getConfigName());
+        editNameTextView.setText(mVolumeConfig.getConfigName());
 
         editRadiusTextView = (EditText)findViewById(R.id.editRadiusText);
-        editRadiusTextView.setText(mConfig.getRadius().toString());
+        editRadiusTextView.setText(mVolumeConfig.getRadius().toString());
         editRadiusTextView.addTextChangedListener(this);
 
         mSaveButton = (Button) findViewById(R.id.saveButton);

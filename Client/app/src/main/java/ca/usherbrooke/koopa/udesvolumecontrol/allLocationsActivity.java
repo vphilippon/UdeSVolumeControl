@@ -7,54 +7,94 @@ package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import message.GetUserConfigsReply;
 import message.GetUserConfigsRequest;
 import message.PostNewUserReply;
 import message.PostNewUserRequest;
+import message.PutConfigReply;
+import message.PutConfigRequest;
+import model.VolumeConfig;
 import utils.ClientUDP;
 import utils.Serializer;
 
 public class allLocationsActivity extends Activity {
 
+    protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  };
+
     private ListAdapter m_locationListAdapter;
-    private ArrayList<Location> m_allLocations = new ArrayList<Location>();
+    private ArrayList<VolumeConfig> mVolumeConfigs = new ArrayList<VolumeConfig>();
     private Boolean testBool = false;
-    //TODO merge with julien, add service variables here
+    VolumeControlService m_volumeControlServ = null;
+    boolean m_isBound = false;
+
+    private ServiceConnection m_volumeControlServiceConnection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            m_volumeControlServ = ((VolumeControlService.VolumeControlServiceBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name)
+        {
+            m_volumeControlServ = null;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
-
-        //TODO merge with Julien start and bind service here (Or make sure it is bound :P)
-
-        update();
+        doBindService();
+        //update();
     };
+
+    void doBindService()
+    {
+        bindService(new Intent(this,
+                VolumeControlService.class), m_volumeControlServiceConnection, Context.BIND_AUTO_CREATE);
+        m_isBound = true;
+    }
+
+    void doUnbindService()
+    {
+        if (m_isBound)
+        {
+            unbindService(m_volumeControlServiceConnection);
+            m_isBound = false;
+        }
+    }
 
     public void onPause()
     {
         super.onPause();
+        doUnbindService();
     }
 
     public void onResume()
     {
         super.onResume();
-        //TODO merge with Julien. Make sure service is bound (If we unbind it in pause, etc.)
+        doBindService();
     }
 
     @Override
@@ -71,7 +111,7 @@ public class allLocationsActivity extends Activity {
     }
 
     private void signOut(){
-        //TODO merge with Julien Unbind service
+        doUnbindService();
 
         Intent myIntent = new Intent(allLocationsActivity.this, LoginActivity.class);
         startActivity(myIntent);
@@ -82,10 +122,8 @@ public class allLocationsActivity extends Activity {
     {
         ListView eventList = (ListView) findViewById(R.id.locationList);
 
-        //TODO merge with julien Refresh current location
-        //currentLocation = service.get
-        testBool = !testBool;
-        if(testBool){ //currentLocation == null{
+        VolumeEntry currentLocation = m_volumeControlServ.getCurrentVolumeEntry();
+        if(currentLocation == null){
             LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.GONE);
 
@@ -102,28 +140,106 @@ public class allLocationsActivity extends Activity {
 
         //TODO merge with Vincent Get real list from server
         if (eventList != null) {
-            ClientUDP cl = null;
+
+//            m_allLocations.add(new Location("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
+            eventList.setAdapter(m_locationListAdapter);
+
+            // TODO MAXIME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // TODO Voici comment moi je faisait pour set toutes les choses. Je ne comprends pas a quoi sert le Location que vous avez cree (que j'ai renomme OurLocation pour pas avoir de conflit avec Location d'Android
+            // Et j'ai pas compris a quoi sers SoundProfile et SoundProfileS
+            Vector<VolumeEntry> TemporaireAllEntries = new Vector<VolumeEntry>();
+            Location aLocationFromJavaLocationClass = new Location(LocationManager.GPS_PROVIDER);
+            aLocationFromJavaLocationClass.setLatitude(45.381);
+            aLocationFromJavaLocationClass.setLongitude(-71.9272000);
+            int radius = 20;
+            int ringtone = 0;
+            int notificatiuon = 0;
+            boolean vibrate = false;
+
+            VolumeEntry TempLoc = new VolumeEntry("Un Nom", aLocationFromJavaLocationClass, radius, ringtone, notificatiuon, vibrate);
+            TemporaireAllEntries.add(TempLoc);
+
+            // Ca erase les anciens entry et les remplace par les nouveaux.
+            m_volumeControlServ.setAllEntries(TemporaireAllEntries);
+
+        }
+    }
+
+    public class DatabaseRequestTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final DatabaseRequests mRequest;
+        private final String mUsername;
+
+        DatabaseRequestTask(DatabaseRequests request, String username) {
+            mRequest = request;
+            mUsername = username;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
             try {
-                cl = new ClientUDP(1000);
+                ClientUDP cl = new ClientUDP(1000);
                 cl.connect("10.44.88.174", 9005);
 
-                cl.send(Serializer.serialize(new GetUserConfigsRequest("ff")));
+                switch (mRequest)
+                {
+                    case REFRESH:
+                        cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+                        break;
+                    case EDIT:
+                        //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+                        break;
+                    case DELETE:
+                        //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+                        break;
+                    case ADD:
+                        //cl.send(Serializer.serialize(new PutConfigRequest(mUsername)));
+                        break;
+                }
 
                 DatagramPacket rep = cl.receive();
-                GetUserConfigsReply mess = (GetUserConfigsReply) Serializer.deserialize(rep.getData());
+                PostNewUserReply mess = null;
+
+                switch (mRequest)
+                {
+                    case REFRESH:
+                         mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+                        break;
+                    case EDIT:
+                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+                        break;
+                    case DELETE:
+                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+                        break;
+                    case ADD:
+                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+                        break;
+                }
+
+                if (mess != null)
+                {
+
+                }
 
             }  catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-//            m_allLocations.add(new Location("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
-//            m_allLocations.add(new Location("Work", new SoundProfile(SoundProfiles.SILENT, 100)));
-//            m_allLocations.add(new Location("Home depot", new SoundProfile(SoundProfiles.SOUND, 100)));
-//            m_allLocations.add(new Location("Bus stop", new SoundProfile(SoundProfiles.SOUND, 100)));
-//            m_allLocations.add(new Location("Longest name ever for a location", new SoundProfile(SoundProfiles.SILENT, 100)));
-//            m_allLocations.add(new Location("Bar", new SoundProfile(SoundProfiles.VIBRATE, 100)));
-//            m_allLocations.add(new Location("School", new SoundProfile(SoundProfiles.VIBRATE, 100)));
-            m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_allLocations);
-            eventList.setAdapter(m_locationListAdapter);
+
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
+            if (success) {
+                Toast.makeText(getApplication(), "Success!", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Toast.makeText(getApplication(), "Fail!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
+
+
 }

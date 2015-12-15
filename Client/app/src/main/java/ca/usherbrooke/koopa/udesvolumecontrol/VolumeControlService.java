@@ -13,6 +13,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
@@ -21,11 +22,11 @@ import java.util.Vector;
 public class VolumeControlService extends Service implements LocationListener
 {
     private AudioManager audioMan;
-    private String currentZoneName;
+    private Integer currentZoneIndex = -1;
     private static final int MIN_BTW_UPDATE = 10 * 1000; // 10 sec
     private static final int DIS_BTW_UPDATE = 10; // 10 meter
     private final IBinder binder = new VolumeControlServiceBinder();
-    private Vector<VolumeEntry> allEntries;
+    private Vector<VolumeEntry> allEntries = new Vector<>();
 
     public class VolumeControlServiceBinder extends Binder
     {
@@ -62,19 +63,40 @@ public class VolumeControlService extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
-        for(VolumeEntry entry : allEntries)
+        synchronized (allEntries)
         {
-            if (entry.isInside(location))
+            synchronized (currentZoneIndex)
             {
-                if(!entry.getEntryName().equals(currentZoneName))
+                for (VolumeEntry entry : allEntries)
                 {
-                    currentZoneName = entry.getEntryName();
-                    Toast.makeText(getBaseContext(), "Entering Zone " + currentZoneName, Toast.LENGTH_SHORT).show();
-                    audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, entry.getNotificationVolume(), 0);
-                    audioMan.setStreamVolume(AudioManager.STREAM_RING, entry.getRingtoneVolume(), 0);
-                    audioMan.setRingerMode(entry.doesVibrate()? AudioManager.RINGER_MODE_NORMAL : AudioManager.RINGER_MODE_SILENT);
+                    if (entry.isInside(location))
+                    {
+                        if (currentZoneIndex == -1 || !entry.getEntryName().equals(allEntries.elementAt(currentZoneIndex).getEntryName()))
+                        {
+//                            // TODO: Maxime peu etre si j'ai bien compris is je check le sound profile et selon je met ce qu'il faut
+//                            currentZoneIndex = allEntries.indexOf(entry);
+//                            if(entry.getSoundProfile() == SoundProfiles.SOUND)
+//                            {
+//                                audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, audioMan.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION), 0);
+//                                audioMan.setStreamVolume(AudioManager.STREAM_RING, audioMan.getStreamMaxVolume(AudioManager.STREAM_RING), 0);
+//                            } else if(entry.getSoundProfile() == SoundProfiles.SILENT)
+//                            {
+//                                audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0);
+//                                audioMan.setStreamVolume(AudioManager.STREAM_RING,0, 0);
+//                            }
+//                            // TODO Maxime Pour le vibrate je ne seais pas comment le gerer
+
+
+                            currentZoneIndex = allEntries.indexOf(entry);
+
+                            Toast.makeText(getBaseContext(), "Entering Zone " + entry.getEntryName(), Toast.LENGTH_SHORT).show();
+                            audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, entry.getNotificationVolume(), 0);
+                            audioMan.setStreamVolume(AudioManager.STREAM_RING, entry.getRingtoneVolume(), 0);
+                            audioMan.setRingerMode(entry.doesVibrate() ? AudioManager.RINGER_MODE_NORMAL : AudioManager.RINGER_MODE_SILENT);
+                        }
+                        break;
+                    }
                 }
-                break;
             }
         }
     }
@@ -97,7 +119,35 @@ public class VolumeControlService extends Service implements LocationListener
     public void setAllEntries(Vector<VolumeEntry> newAllEntries)
     {
         Toast.makeText(this, "Service: " + newAllEntries.size() + " entries added", Toast.LENGTH_SHORT).show();
-        allEntries = newAllEntries;
+        synchronized (allEntries)
+        {
+            synchronized (currentZoneIndex)
+            {
+                if(currentZoneIndex != -1)
+                {
+                    currentZoneIndex = newAllEntries.indexOf(allEntries.elementAt(currentZoneIndex));
+                }
+                allEntries = newAllEntries;
+            }
+        }
+    }
+
+    @Nullable
+    public VolumeEntry getCurrentVolumeEntry()
+    {
+        synchronized (allEntries)
+        {
+            synchronized (currentZoneIndex)
+            {
+                if (currentZoneIndex == -1)
+                {
+                    return null;
+                } else
+                {
+                    return allEntries.elementAt(currentZoneIndex);
+                }
+            }
+        }
     }
 }
 

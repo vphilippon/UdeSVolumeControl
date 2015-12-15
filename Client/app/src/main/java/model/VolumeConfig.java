@@ -2,7 +2,7 @@ package model;
 
 import java.io.Serializable;
 
-public class Config implements Serializable{
+public class VolumeConfig implements Serializable{
 	private static final long serialVersionUID = 4907608852944084713L;
 	
 	private Integer _id;
@@ -13,7 +13,7 @@ public class Config implements Serializable{
     private Integer _volumeRingtone;
     private Integer _volumeNotification;
 
-	public Config(Integer id, String configName, Double x, Double y, Integer radius, Integer volumeRingtone, Integer volumeNotification) {
+	public VolumeConfig(Integer id, String configName, Double x, Double y, Integer radius, Integer volumeRingtone, Integer volumeNotification) {
 		_id = id;
 		_configName = configName;
 		_x = x;

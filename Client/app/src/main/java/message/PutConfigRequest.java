@@ -1,19 +1,19 @@
 package message;
 
-import model.Config;
+import model.VolumeConfig;
 
 public class PutConfigRequest extends Request {
 	private static final long serialVersionUID = 7392193608035957632L;
 	
-	private Config _updatedConfig;
+	private VolumeConfig _updatedVolumeConfig;
 
-	public PutConfigRequest(String userId, Config updatedConfigs) {
+	public PutConfigRequest(String userId, VolumeConfig updatedConfigs) {
 		super(userId);
-		_updatedConfig = updatedConfigs;
+		_updatedVolumeConfig = updatedConfigs;
 	}
 	
-	public Config getUpdatedConfig() {
-		return _updatedConfig;
+	public VolumeConfig getUpdatedConfig() {
+		return _updatedVolumeConfig;
 	}
 
 }
