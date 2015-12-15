@@ -24,22 +24,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
-import message.GetVolumeConfigsReply;
-import message.GetVolumeConfigsRequest;
 import model.VolumeConfig;
-import utils.ClientUDP;
-import utils.Serializer;
+
 public class AllLocationsActivity extends Activity {
     protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  };
 
     private ListAdapter m_locationListAdapter;
-    private ArrayList<VolumeConfig> mVolumeConfigs = new ArrayList<VolumeConfig>();
-    private Boolean testBool = false;
+    private ArrayList<VolumeConfig> m_volumeConfigs = new ArrayList<VolumeConfig>();
     VolumeControlService m_volumeControlServer = null;
     boolean m_isBound = false;
 
@@ -65,7 +60,7 @@ public class AllLocationsActivity extends Activity {
         setContentView(R.layout.all_locations_activity);
         doBindService();
 
-        m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
+        m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
 
 //        update();
     };
@@ -105,20 +100,57 @@ public class AllLocationsActivity extends Activity {
 
     public void onEditCurrentClicked(View v){
         //TODO merge with Zach and start activity
+
+        ImageButton button = (ImageButton) v;
+        VolumeConfig configToEdit;
+        if(button.getId() == R.id.locationListDelete)
+        {
+            ListView listView = (ListView) findViewById(R.id.locationList);
+            int position = listView.getPositionForView(v);
+            configToEdit = (VolumeConfig)listView.getItemAtPosition(position);
+        }
+        else
+        {
+            TextView tv = (TextView)findViewById(R.id.currentLocationName);
+            String configName = tv.getText().toString();
+            Iterator<VolumeConfig>it = m_volumeConfigs.iterator();
+            while(it.hasNext())
+            {
+                VolumeConfig current = it.next();
+                if(current.getName().equals(configName))
+                {
+                    configToEdit = current;
+                    break;
+                }
+            }
+        }
     }
 
     public void onDeleteCurrentClicked(View v){
         ImageButton button = (ImageButton) v;
-        String currentLocationName = new String();
+        String currentLocationName;
+        VolumeConfig configtoDelete;
         if(button.getId() == R.id.locationListDelete)
         {
-            //ListAdapter adapter = (ListAdapter) button.getParent();
-            //currentLocationName = adapter.getLocationName();
+            ListView listView = (ListView) findViewById(R.id.locationList);
+            int position = listView.getPositionForView(v);
+            configtoDelete = (VolumeConfig)listView.getItemAtPosition(position);
+            currentLocationName = configtoDelete.getName();
         }
         else
         {
             TextView tv = (TextView)findViewById(R.id.currentLocationName);
             currentLocationName = tv.getText().toString();
+            Iterator<VolumeConfig>it = m_volumeConfigs.iterator();
+            while(it.hasNext())
+            {
+                VolumeConfig current = it.next();
+                if(current.getName().equals(currentLocationName))
+                {
+                    configtoDelete = current;
+                    break;
+                }
+            }
         }
         AlertDialog dlg = new AlertDialog.Builder(v.getContext())
                 .setMessage("Are you sure you want to delete " + currentLocationName + " ?")
@@ -126,7 +158,7 @@ public class AllLocationsActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send to server DELETE LOCATION
-                        //currentLocationName
+//                      config.getId();
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -173,7 +205,7 @@ public class AllLocationsActivity extends Activity {
             LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.VISIBLE);
 
-            m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
+            m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
             LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.GONE);
         }
@@ -279,11 +311,11 @@ public class AllLocationsActivity extends Activity {
 
         private void addConfigs(ArrayList<VolumeConfig> configs)
         {
-            mVolumeConfigs.clear();
+            m_volumeConfigs.clear();
             for (VolumeConfig conf : configs) {
-                mVolumeConfigs.add(conf);
+                m_volumeConfigs.add(conf);
             }
-            mVolumeConfigs.add(new VolumeConfig(0, "Test", 2.0, 2.0, 50, 1));
+            m_volumeConfigs.add(new VolumeConfig(0, "Test", 2.0, 2.0, 50, 1));
 
         }
     }
