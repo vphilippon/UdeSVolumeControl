@@ -20,6 +20,8 @@ public class ListAdapter extends ArrayAdapter<OurLocation> {
             super(context, resource, items);
         }
 
+        private String m_name;
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -32,6 +34,7 @@ public class ListAdapter extends ArrayAdapter<OurLocation> {
             }
 
             OurLocation ourLocationDetails = getItem(position);
+            m_name = ourLocationDetails.m_name;
 
             if (ourLocationDetails != null) {
 
@@ -63,5 +66,9 @@ public class ListAdapter extends ArrayAdapter<OurLocation> {
             }
 
             return v;
+        }
+
+        public String getLocationName(){
+            return m_name;
         }
 }

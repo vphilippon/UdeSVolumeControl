@@ -2,12 +2,14 @@
 //Zachary Duquette 11 011 978
 //Kevin Labrie 12 113 777
 //Julien Meunier 10 078 943
-//TODO Vincent Philippon add matricule
+//Vincent Philippon 12 098 838
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
@@ -15,30 +17,33 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.Vector;
 
-public class allLocationsActivity extends Activity {
+public class AllLocationsActivity extends Activity {
 
     private ListAdapter m_locationListAdapter;
     private ArrayList<OurLocation> m_allOurLocations = new ArrayList<OurLocation>();
     private Boolean testBool = false;
-    VolumeControlService m_volumeControlServ = null;
+    VolumeControlService m_volumeControlServer = null;
     boolean m_isBound = false;
     private ServiceConnection m_volumeControlServiceConnection = new ServiceConnection()
     {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service)
         {
-            m_volumeControlServ = ((VolumeControlService.VolumeControlServiceBinder) service).getService();
+            m_volumeControlServer = ((VolumeControlService.VolumeControlServiceBinder) service).getService();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name)
         {
-            m_volumeControlServ = null;
+            m_volumeControlServer = null;
         }
     };
 
@@ -48,7 +53,7 @@ public class allLocationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
         doBindService();
-        //update();
+//        update();
     };
 
     void doBindService()
@@ -84,11 +89,50 @@ public class allLocationsActivity extends Activity {
         super.onPostCreate(savedInstanceState);
     }
 
+    public void onEditCurrentClicked(View v){
+        //TODO merge with Zach and start activity
+    }
+
+    public void onDeleteCurrentClicked(View v){
+        ImageButton button = (ImageButton) v;
+        String currentLocationName;
+        if(button.getId() == R.id.locationListDelete)
+        {
+            ListAdapter adapter = (ListAdapter) button.getParent();
+            currentLocationName = adapter.getLocationName();
+        }
+        else
+        {
+            TextView tv = (TextView)findViewById(R.id.currentLocationName);
+            currentLocationName = tv.getText().toString();
+        }
+        AlertDialog dlg = new AlertDialog.Builder(v.getContext())
+                .setMessage("Are you sure you want to delete " + currentLocationName + " ?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send to server DELETE LOCATION
+                        //currentLocationName
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                })
+                .show();
+    }
+
+    public void onAddNewLocationClicked(View v){
+        //TODO merge with Zach and start activity
+    }
+
     public void onUpdateClicked(View v) {
         update();
     }
 
-    public void onSignOut(View v){
+    public void onSignOutClicked(View v){
         signOut();
     }
 
@@ -100,7 +144,7 @@ public class allLocationsActivity extends Activity {
     {
         ListView eventList = (ListView) findViewById(R.id.locationList);
 
-        VolumeEntry currentLocation = m_volumeControlServ.getCurrentVolumeEntry();
+        VolumeEntry currentLocation = m_volumeControlServer.getCurrentVolumeEntry();
         if(currentLocation == null){
             LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.GONE);
@@ -144,7 +188,7 @@ public class allLocationsActivity extends Activity {
             TemporaireAllEntries.add(TempLoc);
 
             // Ca erase les anciens entry et les remplace par les nouveaux.
-            m_volumeControlServ.setAllEntries(TemporaireAllEntries);
+            m_volumeControlServer.setAllEntries(TemporaireAllEntries);
 
         }
     }
