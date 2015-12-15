@@ -43,25 +43,25 @@ public class ListAdapter extends ArrayAdapter<VolumeConfig> {
                 ImageView currentProfile = (ImageView) v.findViewById(R.id.currentSoundProfile);
 
                 if(locationName != null){
-                    locationName.setText(volumeConfig.getConfigName());
+                    locationName.setText(volumeConfig.getName());
                 }
 
                 if(currentProfile != null){
 
-//                    switch (0){
-//                        case SILENT:
-//                            currentProfile.setImageResource(R.drawable.ic_silent);
-//                            break;
-//                        case SOUND:
-//                            currentProfile.setImageResource(R.drawable.ic_sound);
-//                            break;
-//                        case VIBRATE:
-//                            currentProfile.setImageResource(R.drawable.ic_vibrate);
-//                            break;
-//                        default:
-//                            assert false : "Add your new sound Profile here with an icon";
-//                            break;
-//                    }
+                    switch (SoundProfiles.values()[volumeConfig.getProfile()]){
+                        case SILENT:
+                            currentProfile.setImageResource(R.drawable.ic_silent);
+                            break;
+                        case SOUND:
+                            currentProfile.setImageResource(R.drawable.ic_sound);
+                            break;
+                        case VIBRATE:
+                            currentProfile.setImageResource(R.drawable.ic_vibrate);
+                            break;
+                        default:
+                            assert false : "Add your new sound Profile here with an icon";
+                            break;
+                    }
                     currentProfile.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 }
             }

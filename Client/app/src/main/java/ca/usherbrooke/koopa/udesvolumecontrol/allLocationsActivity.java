@@ -25,12 +25,8 @@ import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import message.GetUserConfigsReply;
-import message.GetUserConfigsRequest;
-import message.PostNewUserReply;
-import message.PostNewUserRequest;
-import message.PutConfigReply;
-import message.PutConfigRequest;
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
 import model.VolumeConfig;
 import utils.ClientUDP;
 import utils.Serializer;
@@ -66,6 +62,9 @@ public class allLocationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
         doBindService();
+
+        m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
+
         //update();
     };
 
@@ -120,7 +119,6 @@ public class allLocationsActivity extends Activity {
 
     private void update()
     {
-        ListView eventList = (ListView) findViewById(R.id.locationList);
 
         VolumeEntry currentLocation = m_volumeControlServ.getCurrentVolumeEntry();
         if(currentLocation == null){
@@ -134,14 +132,17 @@ public class allLocationsActivity extends Activity {
             LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.VISIBLE);
 
+            m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
             LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.GONE);
         }
 
-        //TODO merge with Vincent Get real list from server
+        ListView eventList = (ListView) findViewById(R.id.locationList);
         if (eventList != null) {
 
-//            m_allLocations.add(new Location("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
+            DatabaseRequestTask refreshTask = new DatabaseRequestTask(DatabaseRequests.REFRESH, "ff");
+            refreshTask.execute();
+
             eventList.setAdapter(m_locationListAdapter);
 
             // TODO MAXIME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -184,7 +185,7 @@ public class allLocationsActivity extends Activity {
                 switch (mRequest)
                 {
                     case REFRESH:
-                        cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+                        cl.send(Serializer.serialize(new GetVolumeConfigsRequest(mUsername)));
                         break;
                     case EDIT:
                         //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
@@ -198,13 +199,13 @@ public class allLocationsActivity extends Activity {
                 }
 
                 DatagramPacket rep = cl.receive();
-                PostNewUserReply mess = null;
 
                 switch (mRequest)
                 {
                     case REFRESH:
-                         mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
-                        break;
+                        GetVolumeConfigsReply mess = (GetVolumeConfigsReply) Serializer.deserialize(rep.getData());
+                        addConfigs(mess.getConfigs());
+                        return mess.isSuccess();
                     case EDIT:
                         //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
                         break;
@@ -214,11 +215,6 @@ public class allLocationsActivity extends Activity {
                     case ADD:
                         //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
                         break;
-                }
-
-                if (mess != null)
-                {
-
                 }
 
             }  catch (IOException | ClassNotFoundException e) {
@@ -238,6 +234,15 @@ public class allLocationsActivity extends Activity {
             {
                 Toast.makeText(getApplication(), "Fail!", Toast.LENGTH_SHORT).show();
             }
+        }
+
+        private void addConfigs(ArrayList<VolumeConfig> configs)
+        {
+            mVolumeConfigs.clear();
+            for (VolumeConfig conf : configs) {
+                mVolumeConfigs.add(conf);
+            }
+
         }
     }
 

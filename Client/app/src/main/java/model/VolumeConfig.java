@@ -6,55 +6,52 @@ public class VolumeConfig implements Serializable{
 	private static final long serialVersionUID = 4907608852944084713L;
 	
 	private Integer _id;
-	private String _configName;
-	private Double _x;
-	private Double _y;
+	private String _name;
+	private Double _longitude;
+	private Double _lattidude;
     private Integer _radius;
-    private Integer _volumeRingtone;
-    private Integer _volumeNotification;
+    private Integer _profile;
 
-	public VolumeConfig(Integer id, String configName, Double x, Double y, Integer radius, Integer volumeRingtone, Integer volumeNotification) {
+	public VolumeConfig(Integer id, String name,
+			Double longitude, Double lattitude, Integer radius, Integer profile) {
 		_id = id;
-		_configName = configName;
-		_x = x;
-		_y = y;
+		_name = name;
+		_longitude = longitude;
+		_lattidude = lattitude;
 		_radius = radius;
-		_volumeRingtone = volumeRingtone;
-		_volumeNotification = volumeNotification;
-		
-		// TODO add other volumes, and maybe structure/refactor
+		_profile = profile;
 	}
 	
-	public Integer getConfigId() {
+	public Integer getId() {
 		return _id;	
 	}
 	
-	public void setConfigId(Integer id) {
+	public void setId(Integer id) {
 		_id = id;	
 	}
 	
-	public String getConfigName() {
-		return _configName;	
+	public String getName() {
+		return _name;	
 	}
 	
-	public void setConfigName(String configName) {
-		_configName = configName;	
+	public void setName(String name) {
+		_name = name;	
 	}
 	
-	public Double getCenterX() {
-		return _x;	
+	public Double getLongitude() {
+		return _longitude;	
 	}
 	
-	public void setCenterX(Double x) {
-		_x = x;	
+	public void setLongitude(Double longitude) {
+		_longitude = longitude;	
 	}
 	
-	public Double getCenterY() {
-		return _y;	
+	public Double getLattitude() {
+		return _lattidude;
 	}
 	
-	public void setCenterY(Double y) {
-		_y = y;	
+	public void setLattitude(Double lattitude) {
+		_lattidude = lattitude;	
 	}
 	
 	public Integer getRadius() {
@@ -65,19 +62,11 @@ public class VolumeConfig implements Serializable{
 		_radius = radius;	
 	}
 	
-	public Integer getVolumeRingtone() {
-		return _volumeRingtone;	
+	public Integer getProfile() {
+		return _profile;	
 	}
 	
-	public void setVolumeRingtone(Integer volumeRingtone) {
-		_volumeRingtone = volumeRingtone;	
-	}
-	
-	public Integer getVolumeNotification() {
-		return _volumeNotification;	
-	}
-	
-	public void setVolumeNotification(Integer volumeNotification) {
-		_volumeNotification = volumeNotification;	
+	public void setProfile(Integer profile) {
+		_profile = profile;	
 	}
 }

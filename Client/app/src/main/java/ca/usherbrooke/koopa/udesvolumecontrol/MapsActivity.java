@@ -36,12 +36,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mVolumeConfig = new VolumeConfig(1,"Home",20.d,10.d,100,1,1);
-        mVolumeConfig.setConfigName("Home");
+        mVolumeConfig = new VolumeConfig(1,"Home",20.d,10.d,100,1);
+        mVolumeConfig.setName("Home");
         mVolumeConfig.setRadius(50);
 
         editNameTextView = (EditText)findViewById(R.id.editProfileNameText);
-        editNameTextView.setText(mVolumeConfig.getConfigName());
+        editNameTextView.setText(mVolumeConfig.getName());
 
         editRadiusTextView = (EditText)findViewById(R.id.editRadiusText);
         editRadiusTextView.setText(mVolumeConfig.getRadius().toString());
