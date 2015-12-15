@@ -24,13 +24,23 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
+import message.DeleteVolumeConfigReply;
+import message.DeleteVolumeConfigRequest;
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
+import message.PutVolumeConfigRequest;
 import model.VolumeConfig;
+import utils.ClientUDP;
+import utils.Serializer;
 
-public class AllLocationsActivity extends Activity {
+public class AllLocationsActivity  extends Activity {
+
     protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  };
 
     private ListAdapter m_locationListAdapter;
@@ -103,7 +113,7 @@ public class AllLocationsActivity extends Activity {
 
         ImageButton button = (ImageButton) v;
         VolumeConfig configToEdit;
-        if(button.getId() == R.id.locationListDelete)
+        if(button.getId() == R.id.locationListEdit)
         {
             ListView listView = (ListView) findViewById(R.id.locationList);
             int position = listView.getPositionForView(v);
@@ -129,7 +139,7 @@ public class AllLocationsActivity extends Activity {
     public void onDeleteCurrentClicked(View v){
         ImageButton button = (ImageButton) v;
         String currentLocationName;
-        VolumeConfig configtoDelete;
+        VolumeConfig configtoDelete = null;
         if(button.getId() == R.id.locationListDelete)
         {
             ListView listView = (ListView) findViewById(R.id.locationList);
@@ -152,13 +162,16 @@ public class AllLocationsActivity extends Activity {
                 }
             }
         }
+        final VolumeConfig confFinal = configtoDelete; // Need to access in the inner AsyncTask
+
         AlertDialog dlg = new AlertDialog.Builder(v.getContext())
                 .setMessage("Are you sure you want to delete " + currentLocationName + " ?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send to server DELETE LOCATION
-//                      config.getId();
+                      //config.getId();
+                        onDeleteYesClick(confFinal);
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -168,6 +181,7 @@ public class AllLocationsActivity extends Activity {
                     }
                 })
                 .show();
+
     }
 
     public void onAddNewLocationClicked(View v){
@@ -190,8 +204,7 @@ public class AllLocationsActivity extends Activity {
         finish();
     }
 
-    private void update()
-    {
+    private void update(){
         VolumeEntry currentLocation = m_volumeControlService != null ? m_volumeControlService.getCurrentVolumeEntry() : null;
         if (currentLocation == null) {
             LinearLayout knownLocationLayout = (LinearLayout) findViewById(R.id.knownLocation);
@@ -211,7 +224,7 @@ public class AllLocationsActivity extends Activity {
         ListView eventList = (ListView) findViewById(R.id.locationList);
         if (eventList != null) {
 
-            DatabaseRequestTask refreshTask = new DatabaseRequestTask(DatabaseRequests.REFRESH, "ff"); // TODO change for real username
+            DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.REFRESH, "ff", null); // TODO change for real username
             refreshTask.execute();
 
             eventList.setAdapter(m_locationListAdapter);
@@ -256,61 +269,81 @@ public class AllLocationsActivity extends Activity {
         }
     }
 
+    private void onDeleteYesClick(VolumeConfig conf){
+
+        DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.DELETE, "ff", conf); // TODO change for real username
+        refreshTask.execute();
+        update();
+    }
+
+    protected void refreshList()
+    {
+        ListView eventList = (ListView) findViewById(R.id.locationList);
+        if (eventList != null) {
+
+            eventList.setAdapter(m_locationListAdapter);
+        }
+    }
+
     public class DatabaseRequestTask extends AsyncTask<Void, Void, Boolean> {
 
         private final DatabaseRequests mRequest;
         private final String mUsername;
+        private AllLocationsActivity listener;
+        private VolumeConfig m_config;
 
-        DatabaseRequestTask(DatabaseRequests request, String username) {
+        DatabaseRequestTask(AllLocationsActivity listener, DatabaseRequests request, String username, VolumeConfig conf) {
             mRequest = request;
             mUsername = username;
+            this.listener = listener;
+            m_config = conf;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-//            try {
-//                ClientUDP cl = new ClientUDP(1000);
-//                cl.connect("10.44.88.174", 9005);
-//
-//                switch (mRequest)
-//                {
-//                    case REFRESH:
-//                        cl.send(Serializer.serialize(new GetVolumeConfigsRequest(mUsername)));
-//                        break;
-//                    case EDIT:
-//                        cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, new VolumeConfig(/* ADD DATA */))));
-//                        break;
-//                    case DELETE:
-//                        //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
-//                        break;
-//                    case ADD:
-//                        cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, new VolumeConfig(null, /* ADD DATA */))));
-//                        break;
-//                }
-//
-//                DatagramPacket rep = cl.receive();
-//
-//                switch (mRequest)
-//                {
-//                    case REFRESH:
-//                        GetVolumeConfigsReply mess = (GetVolumeConfigsReply) Serializer.deserialize(rep.getData());
-//                        addConfigs(mess.getConfigs());
-//                        return mess.isSuccess();
-//                    case EDIT:
-//                        //mess = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
-//                        break;
-//                    case DELETE:
-//                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
-//                        break;
-//                    case ADD:
-//                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
-//                        break;
-//                }
-                addConfigs(new ArrayList<VolumeConfig>());
+        protected Boolean doInBackground(Void ... parms) {
+            try {
+                ClientUDP cl = new ClientUDP(1000);
+                cl.connect("10.44.88.174", 9005);
 
-//            }  catch (IOException | ClassNotFoundException e) {
-//                e.printStackTrace();
-//            }
+                switch (mRequest)
+                {
+                    case REFRESH:
+                        cl.send(Serializer.serialize(new GetVolumeConfigsRequest(mUsername)));
+                        break;
+                    case EDIT:
+                        cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, m_config)));
+                        break;
+                    case DELETE:
+                        cl.send(Serializer.serialize(new DeleteVolumeConfigRequest("ff", m_config.getId())));
+                        break;
+                    case ADD:
+                        cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, m_config)));
+                        break;
+                }
+
+                DatagramPacket rep = cl.receive();
+
+                switch (mRequest)
+                {
+                    case REFRESH:
+                        GetVolumeConfigsReply messRefresh = (GetVolumeConfigsReply) Serializer.deserialize(rep.getData());
+                        addConfigs(messRefresh.getConfigs());
+                        return messRefresh.isSuccess();
+                    case EDIT:
+                        //mess = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        break;
+                    case DELETE:
+                        DeleteVolumeConfigReply messDelete = (DeleteVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        return messDelete.isSuccess();
+                    case ADD:
+                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+                        break;
+                }
+                //addConfigs(new ArrayList<VolumeConfig>());
+
+            }  catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
             return false;
         }
@@ -318,10 +351,10 @@ public class AllLocationsActivity extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
 
+            listener.refreshList();
         }
 
-        private void addConfigs(ArrayList<VolumeConfig> configs)
-        {
+        private void addConfigs(ArrayList<VolumeConfig> configs) {
             m_volumeConfigs.clear();
             for (VolumeConfig conf : configs) {
                 m_volumeConfigs.add(conf);
