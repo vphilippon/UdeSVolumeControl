@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -27,6 +28,8 @@ import java.util.Vector;
 
 import message.GetVolumeConfigsReply;
 import message.GetVolumeConfigsRequest;
+import message.PutVolumeConfigReply;
+import message.PutVolumeConfigRequest;
 import model.VolumeConfig;
 import utils.ClientUDP;
 import utils.Serializer;
@@ -65,7 +68,7 @@ public class allLocationsActivity extends Activity {
 
         m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
 
-        //update();
+        update();
     };
 
     void doBindService()
@@ -119,28 +122,26 @@ public class allLocationsActivity extends Activity {
 
     private void update()
     {
-
-        VolumeEntry currentLocation = m_volumeControlServ.getCurrentVolumeEntry();
-        if(currentLocation == null){
-            LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
+        VolumeEntry currentLocation = m_volumeControlServ != null ? m_volumeControlServ.getCurrentVolumeEntry() : null;
+        if (currentLocation == null) {
+            LinearLayout knownLocationLayout = (LinearLayout) findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.GONE);
 
-            LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
+            LinearLayout unknownLocationLayout = (LinearLayout) findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.VISIBLE);
-        }
-        else{
-            LinearLayout knownLocationLayout = (LinearLayout)findViewById(R.id.knownLocation);
+        } else {
+            LinearLayout knownLocationLayout = (LinearLayout) findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.VISIBLE);
 
             m_locationListAdapter = new ListAdapter(this, R.layout.location_main, mVolumeConfigs);
-            LinearLayout unknownLocationLayout = (LinearLayout)findViewById(R.id.unknownLocation);
+            LinearLayout unknownLocationLayout = (LinearLayout) findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.GONE);
         }
 
         ListView eventList = (ListView) findViewById(R.id.locationList);
         if (eventList != null) {
 
-            DatabaseRequestTask refreshTask = new DatabaseRequestTask(DatabaseRequests.REFRESH, "ff");
+            DatabaseRequestTask refreshTask = new DatabaseRequestTask(DatabaseRequests.REFRESH, "ff"); // TODO change for real username
             refreshTask.execute();
 
             eventList.setAdapter(m_locationListAdapter);
@@ -148,20 +149,40 @@ public class allLocationsActivity extends Activity {
             // TODO MAXIME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // TODO Voici comment moi je faisait pour set toutes les choses. Je ne comprends pas a quoi sert le Location que vous avez cree (que j'ai renomme OurLocation pour pas avoir de conflit avec Location d'Android
             // Et j'ai pas compris a quoi sers SoundProfile et SoundProfileS
-            Vector<VolumeEntry> TemporaireAllEntries = new Vector<VolumeEntry>();
-            Location aLocationFromJavaLocationClass = new Location(LocationManager.GPS_PROVIDER);
-            aLocationFromJavaLocationClass.setLatitude(45.381);
-            aLocationFromJavaLocationClass.setLongitude(-71.9272000);
-            int radius = 20;
-            int ringtone = 0;
-            int notificatiuon = 0;
-            boolean vibrate = false;
 
-            VolumeEntry TempLoc = new VolumeEntry("Un Nom", aLocationFromJavaLocationClass, radius, ringtone, notificatiuon, vibrate);
-            TemporaireAllEntries.add(TempLoc);
+
+            Vector<VolumeEntry> TemporaireAllEntries = new Vector<VolumeEntry>();
+
+            for (VolumeConfig conf : mVolumeConfigs) {
+                Location aLocationFromJavaLocationClass = new Location(LocationManager.GPS_PROVIDER);
+                aLocationFromJavaLocationClass.setLatitude(conf.getLattitude());
+                aLocationFromJavaLocationClass.setLongitude(conf.getLongitude());
+
+                int ringtone = 0;
+                boolean vibrate = false;
+
+                switch (SoundProfiles.values()[conf.getProfile()]){
+                    case SILENT:
+                        break;
+                    case VIBRATE:
+                        vibrate = true;
+                        break;
+                    case SOUND:
+                        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+                        ringtone = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
+                        break;
+                }
+
+                TemporaireAllEntries.add(new VolumeEntry(conf.getName(), aLocationFromJavaLocationClass, conf.getRadius(), ringtone, ringtone, vibrate));
+            }
+
+            //VolumeEntry TempLoc = new VolumeEntry("Un Nom", aLocationFromJavaLocationClass, radius, ringtone, notificatiuon, vibrate);
+            //TemporaireAllEntries.add(TempLoc);
 
             // Ca erase les anciens entry et les remplace par les nouveaux.
-            m_volumeControlServ.setAllEntries(TemporaireAllEntries);
+            if (m_volumeControlServ != null) {
+                m_volumeControlServ.setAllEntries(TemporaireAllEntries);
+            }
 
         }
     }
@@ -188,13 +209,13 @@ public class allLocationsActivity extends Activity {
                         cl.send(Serializer.serialize(new GetVolumeConfigsRequest(mUsername)));
                         break;
                     case EDIT:
-                        //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
+//                        cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, new VolumeConfig(/* ADD DATA */))));
                         break;
                     case DELETE:
                         //cl.send(Serializer.serialize(new GetUserConfigsRequest(mUsername)));
                         break;
                     case ADD:
-                        //cl.send(Serializer.serialize(new PutConfigRequest(mUsername)));
+//                        cl.send(Serializer.serialize(new PutVolumeConfigRequest(mUsername, new VolumeConfig(null, /* ADD DATA */))));
                         break;
                 }
 
@@ -207,13 +228,13 @@ public class allLocationsActivity extends Activity {
                         addConfigs(mess.getConfigs());
                         return mess.isSuccess();
                     case EDIT:
-                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+//                        mess = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
                         break;
                     case DELETE:
-                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+//                        mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
                         break;
                     case ADD:
-                        //mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+//                        mess = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
                         break;
                 }
 
@@ -227,13 +248,6 @@ public class allLocationsActivity extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
 
-            if (success) {
-                Toast.makeText(getApplication(), "Success!", Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                Toast.makeText(getApplication(), "Fail!", Toast.LENGTH_SHORT).show();
-            }
         }
 
         private void addConfigs(ArrayList<VolumeConfig> configs)
@@ -242,6 +256,7 @@ public class allLocationsActivity extends Activity {
             for (VolumeConfig conf : configs) {
                 mVolumeConfigs.add(conf);
             }
+            //mVolumeConfigs.add(new VolumeConfig(0, "Test",2.0, 2.0, 50, 1));
 
         }
     }
