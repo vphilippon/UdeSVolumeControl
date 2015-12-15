@@ -1,6 +1,6 @@
 ﻿-- Table: "VolumeConfig"
 
-DROP TABLE "VolumeConfig";
+DROP TABLE IF EXISTS "VolumeConfig" CASCADE;
 
 CREATE TABLE "VolumeConfig"
 (
