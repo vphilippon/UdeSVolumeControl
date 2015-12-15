@@ -1,6 +1,6 @@
 ﻿-- Table: "VolumeConfig"
 
--- DROP TABLE "VolumeConfig";
+DROP TABLE "VolumeConfig";
 
 CREATE TABLE "VolumeConfig"
 (
@@ -11,6 +11,7 @@ CREATE TABLE "VolumeConfig"
   "userId" character varying(50) NOT NULL,
   CONSTRAINT pk_volumeconfig PRIMARY KEY ("id"),
   CONSTRAINT "unique_name_userId" UNIQUE (name, "userId"),
+  CONSTRAINT ex_zone EXCLUDE USING gist (zone WITH &&),
   CONSTRAINT fk_user_volumeconfig FOREIGN KEY ("userId")
       REFERENCES "User" ("userId") MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE

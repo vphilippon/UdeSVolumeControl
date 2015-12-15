@@ -63,6 +63,12 @@ public class DummyClient {
 			System.out.println("UpdateConf: ");
 			System.out.println(updateconf.isSuccess());
 			
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "Another", 2.0, 2.0, 3, 1))));
+			data = cl.receive();
+			PutVolumeConfigReply moreconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
+			System.out.println("MoreConf: ");
+			System.out.println(moreconf.isSuccess());
+			
 			cl.send(Serializer.serialize(new GetVolumeConfigsRequest("TOTO3")));
 			data = cl.receive();
 			GetVolumeConfigsReply confs = (GetVolumeConfigsReply) Serializer.deserialize(data.getData());

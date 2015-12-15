@@ -1,6 +1,6 @@
 ﻿-- Table: "User"
 
--- DROP TABLE "User";
+DROP TABLE "User";
 
 CREATE TABLE "User"
 (
