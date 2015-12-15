@@ -6,6 +6,7 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,7 +15,19 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import message.GetUserConfigsReply;
+import message.GetUserConfigsRequest;
+import message.PostNewUserReply;
+import message.PostNewUserRequest;
+import utils.ClientUDP;
+import utils.Serializer;
 
 public class allLocationsActivity extends Activity {
 
@@ -59,6 +72,10 @@ public class allLocationsActivity extends Activity {
 
     private void signOut(){
         //TODO merge with Julien Unbind service
+
+        Intent myIntent = new Intent(allLocationsActivity.this, LoginActivity.class);
+        startActivity(myIntent);
+        finish();
     }
 
     private void update()
@@ -85,7 +102,20 @@ public class allLocationsActivity extends Activity {
 
         //TODO merge with Vincent Get real list from server
         if (eventList != null) {
-            m_allLocations.add(new Location("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
+            ClientUDP cl = null;
+            try {
+                cl = new ClientUDP(1000);
+                cl.connect("10.44.88.174", 9005);
+
+                cl.send(Serializer.serialize(new GetUserConfigsRequest("ff")));
+
+                DatagramPacket rep = cl.receive();
+                GetUserConfigsReply mess = (GetUserConfigsReply) Serializer.deserialize(rep.getData());
+
+            }  catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+//            m_allLocations.add(new Location("Home", new SoundProfile(SoundProfiles.SOUND, 100)));
 //            m_allLocations.add(new Location("Work", new SoundProfile(SoundProfiles.SILENT, 100)));
 //            m_allLocations.add(new Location("Home depot", new SoundProfile(SoundProfiles.SOUND, 100)));
 //            m_allLocations.add(new Location("Bus stop", new SoundProfile(SoundProfiles.SOUND, 100)));
