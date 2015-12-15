@@ -3,6 +3,8 @@ package testing;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
+import message.DeleteVolumeConfigReply;
+import message.DeleteVolumeConfigRequest;
 import message.ExistsUserReply;
 import message.ExistsUserRequest;
 import message.GetVolumeConfigsReply;
@@ -63,11 +65,17 @@ public class DummyClient {
 			System.out.println("UpdateConf: ");
 			System.out.println(updateconf.isSuccess());
 			
-			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "Another", 2.0, 2.0, 3, 1))));
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "Home", 100.0, 100.0, 15, 0))));
 			data = cl.receive();
 			PutVolumeConfigReply moreconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("MoreConf: ");
 			System.out.println(moreconf.isSuccess());
+			
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "Another", 2.0, 2.0, 3, 1))));
+			data = cl.receive();
+			PutVolumeConfigReply overlap = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
+			System.out.println("OverlapConf: ");
+			System.out.println(overlap.isSuccess());
 			
 			cl.send(Serializer.serialize(new GetVolumeConfigsRequest("TOTO3")));
 			data = cl.receive();
@@ -75,6 +83,21 @@ public class DummyClient {
 			System.out.println("Confs: ");
 			System.out.println(confs.isSuccess());
 			for (VolumeConfig c : confs.getConfigs()) {
+				System.out.println(c.getName());
+			}
+			
+			cl.send(Serializer.serialize(new DeleteVolumeConfigRequest("TOTO3", 1)));
+			data = cl.receive();
+			DeleteVolumeConfigReply deleteconf = (DeleteVolumeConfigReply) Serializer.deserialize(data.getData());
+			System.out.println("DeleteConf: ");
+			System.out.println(deleteconf.isSuccess());
+			
+			cl.send(Serializer.serialize(new GetVolumeConfigsRequest("TOTO3")));
+			data = cl.receive();
+			GetVolumeConfigsReply afterdelete = (GetVolumeConfigsReply) Serializer.deserialize(data.getData());
+			System.out.println("AfterDelete: ");
+			System.out.println(afterdelete.isSuccess());
+			for (VolumeConfig c : afterdelete.getConfigs()) {
 				System.out.println(c.getName());
 			}
 			
