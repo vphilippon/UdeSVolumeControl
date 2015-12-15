@@ -1,5 +1,7 @@
 package utils;
 
+import android.widget.Toast;
+
 import java.io.*;
 import java.net.*;
 
@@ -18,12 +20,17 @@ public class ClientUDP {
 		_buffer = new byte[DEFAULT_BUFFER_SIZE];
     }
 
-    public void bind(int port) throws SocketException, UnknownHostException {
-    	_socket.bind(new InetSocketAddress(port));
+    public void bind(Integer port) throws SocketException, UnknownHostException {
+        if(port == null){
+            _socket.bind(null);
+        } else {
+            _socket.bind(new InetSocketAddress(port));
+        }
     }
     
     public void connect(String hostname, int port) throws SocketException, UnknownHostException {
     	connect(new InetSocketAddress(hostname, port));
+        bind(null);
     }
     
     public void connect(SocketAddress addr) throws SocketException, UnknownHostException {

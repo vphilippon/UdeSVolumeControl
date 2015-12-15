@@ -21,6 +21,7 @@ import java.net.DatagramPacket;
 
 import message.ExistsUserReply;
 import message.ExistsUserRequest;
+import message.HelloWorldMessage;
 import message.PostNewUserReply;
 import message.PostNewUserRequest;
 import utils.ClientUDP;
@@ -36,6 +37,10 @@ public class LoginActivity extends AppCompatActivity {
      */
     private UserLoginTask mAuthTask = null;
     private CreateUserTask mCreateUserTask = null;
+
+    private final String m_address = "10.44.88.174"; // Zach server - 192.222.254.189  ||  MyPc - 10.44.88.174
+    private final int m_port = 9005;
+    private final int m_timeout = 5000;
 
     // UI references.
     private AutoCompleteTextView mUsernameView;
@@ -197,8 +202,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                ClientUDP cl = new ClientUDP(1000);
-                cl.connect("10.44.88.174", 9005);
+                ClientUDP cl = new ClientUDP(m_timeout);
+                cl.connect(m_address, m_port);
 
                 cl.send(Serializer.serialize(new ExistsUserRequest(mUsername)));
 
@@ -208,6 +213,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (mess.isExisting())
                 {
                     Intent myIntent = new Intent(LoginActivity.this, AllLocationsActivity.class);
+                    myIntent.putExtra("userName",mUsername);
                     startActivity(myIntent);
                     return true;
                 }
@@ -256,8 +262,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                ClientUDP cl = new ClientUDP(1000);
-                cl.connect("10.44.88.174", 9005);
+                ClientUDP cl = new ClientUDP(m_timeout);
+                cl.connect(m_address, m_port);
 
                 cl.send(Serializer.serialize(new PostNewUserRequest(mUsername)));
 
