@@ -24,10 +24,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".allLocationsActivity"/>
-        <service android:name=".VolumeControlService" />
+        <activity android:name=".LoginActivity"/>
+        <activity android:name=".MapsActivity"/>
 
-        <!--<activity android:name=".allLocationsActivity"/>-->
+        <service android:name=".VolumeControlService" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAbsfEHYIWSsY6C0xh_GCuelzuE6_tvjfE"/>

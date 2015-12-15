@@ -12,7 +12,7 @@
             android:id="@+id/locationName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorText"
             android:textSize="@dimen/location_list_font_size"
             android:ellipsize="end"
             android:maxLines="1"
@@ -35,8 +35,10 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
         <ImageButton
+            android:id="@+id/locationListEdit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:onClick="onEditCurrentClicked"
             android:layout_gravity="center"
             android:scaleType="center"
             android:src="@drawable/ic_edit"/>
@@ -47,10 +49,12 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
         <ImageButton
+            android:id="@+id/locationListDelete"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:scaleType="center"
+            android:onClick="onDeleteCurrentClicked"
             android:src="@drawable/ic_delete"/>
     </LinearLayout>
 </LinearLayout>

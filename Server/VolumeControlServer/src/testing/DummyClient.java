@@ -3,16 +3,18 @@ package testing;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
+import message.DeleteVolumeConfigReply;
+import message.DeleteVolumeConfigRequest;
 import message.ExistsUserReply;
 import message.ExistsUserRequest;
-import message.GetUserConfigsReply;
-import message.GetUserConfigsRequest;
+import message.GetVolumeConfigsReply;
+import message.GetVolumeConfigsRequest;
 import message.HelloWorldMessage;
 import message.PostNewUserReply;
 import message.PostNewUserRequest;
-import message.PutConfigReply;
-import message.PutConfigRequest;
-import model.Config;
+import message.PutVolumeConfigReply;
+import message.PutVolumeConfigRequest;
+import model.VolumeConfig;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -51,25 +53,52 @@ public class DummyClient {
 			System.out.println(notexuser.isSuccess());
 			System.out.println(notexuser.isExisting());
 			
-			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new Config(null, "UdeS", 1.0, 1.0, 2, 5, 6))));
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "UdeS", 1.0, 1.0, 2, 0))));
 			data = cl.receive();
-			PutConfigReply newconf = (PutConfigReply) Serializer.deserialize(data.getData());
+			PutVolumeConfigReply newconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("NewConf: ");
 			System.out.println(newconf.isSuccess());
 			
-			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new Config(1, "UdeS", 1.0, 1.0, 3, 0, 1))));
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(1, "UdeS", 1.0, 1.0, 3, 1))));
 			data = cl.receive();
-			PutConfigReply updateconf = (PutConfigReply) Serializer.deserialize(data.getData());
+			PutVolumeConfigReply updateconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("UpdateConf: ");
 			System.out.println(updateconf.isSuccess());
 			
-			cl.send(Serializer.serialize(new GetUserConfigsRequest("TOTO3")));
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "Home", 100.0, 100.0, 15, 0))));
 			data = cl.receive();
-			GetUserConfigsReply confs = (GetUserConfigsReply) Serializer.deserialize(data.getData());
+			PutVolumeConfigReply moreconf = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
+			System.out.println("MoreConf: ");
+			System.out.println(moreconf.isSuccess());
+			
+			cl.send(Serializer.serialize(new PutVolumeConfigRequest("TOTO3", new VolumeConfig(null, "Another", 2.0, 2.0, 3, 1))));
+			data = cl.receive();
+			PutVolumeConfigReply overlap = (PutVolumeConfigReply) Serializer.deserialize(data.getData());
+			System.out.println("OverlapConf: ");
+			System.out.println(overlap.isSuccess());
+			
+			cl.send(Serializer.serialize(new GetVolumeConfigsRequest("TOTO3")));
+			data = cl.receive();
+			GetVolumeConfigsReply confs = (GetVolumeConfigsReply) Serializer.deserialize(data.getData());
 			System.out.println("Confs: ");
 			System.out.println(confs.isSuccess());
-			for (Config c : confs.getConfigs()) {
-				System.out.println(c.getConfigName());
+			for (VolumeConfig c : confs.getConfigs()) {
+				System.out.println(c.getName());
+			}
+			
+			cl.send(Serializer.serialize(new DeleteVolumeConfigRequest("TOTO3", 1)));
+			data = cl.receive();
+			DeleteVolumeConfigReply deleteconf = (DeleteVolumeConfigReply) Serializer.deserialize(data.getData());
+			System.out.println("DeleteConf: ");
+			System.out.println(deleteconf.isSuccess());
+			
+			cl.send(Serializer.serialize(new GetVolumeConfigsRequest("TOTO3")));
+			data = cl.receive();
+			GetVolumeConfigsReply afterdelete = (GetVolumeConfigsReply) Serializer.deserialize(data.getData());
+			System.out.println("AfterDelete: ");
+			System.out.println(afterdelete.isSuccess());
+			for (VolumeConfig c : afterdelete.getConfigs()) {
+				System.out.println(c.getName());
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {

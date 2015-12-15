@@ -38,8 +38,6 @@ public class VolumeControlService extends Service implements LocationListener
     @Override
     public void onCreate()
     {
-        Toast.makeText(this, "Service : Started ", Toast.LENGTH_SHORT).show();
-
         audioMan = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -118,7 +116,6 @@ public class VolumeControlService extends Service implements LocationListener
 
     public void setAllEntries(Vector<VolumeEntry> newAllEntries)
     {
-        Toast.makeText(this, "Service: " + newAllEntries.size() + " entries added", Toast.LENGTH_SHORT).show();
         synchronized (allEntries)
         {
             synchronized (currentZoneIndex)

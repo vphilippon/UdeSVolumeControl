@@ -1,6 +1,6 @@
 ﻿-- Table: "User"
 
--- DROP TABLE "User";
+DROP TABLE IF EXISTS "User" CASCADE;
 
 CREATE TABLE "User"
 (
