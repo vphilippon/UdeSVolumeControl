@@ -25,11 +25,12 @@
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="match_parent"
+                        android:id="@+id/currentLocationName"
                         android:layout_height="0dp"
                         android:layout_weight="0.4"
                         android:text="Home"
                         android:textSize="30dp"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/colorText"
                         android:gravity="center"/>
                     <ImageView
                         android:layout_width="match_parent"
@@ -45,14 +46,23 @@
                             android:id="@+id/editCurrentLocationButton"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="0.5"
+                            android:layout_weight="0.3"
+                            android:onClick="onEditCurrentClicked"
                             android:src="@drawable/ic_edit"/>
                         <ImageButton
                             android:id="@+id/deleteCurrentLocationButton"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="0.5"
+                            android:layout_weight="0.3"
+                            android:onClick="onDeleteCurrentClicked"
                             android:src="@drawable/ic_delete"/>
+                        <ImageButton
+                            android:id="@+id/createNewLocationButton"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.3"
+                            android:onClick="onAddNewLocationClicked"
+                            android:src="@drawable/ic_add"/>
                     </LinearLayout>
                 </LinearLayout>
                 <LinearLayout
@@ -66,13 +76,14 @@
                         android:layout_height="70dp"
                         android:text="Unsaved Location"
                         android:textSize="40dp"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/colorText"
                         android:gravity="center"/>
                     <ImageButton
                         android:id="@+id/addCurrentLocationButton"
                         android:layout_width="100dp"
                         android:layout_height="60dp"
                         android:layout_gravity="center"
+                        android:onClick="onAddNewLocationClicked"
                         android:src="@drawable/ic_add"/>
                 </LinearLayout>
             </FrameLayout>
@@ -112,7 +123,7 @@
                 android:layout_height="match_parent"
                 android:textColor="#646464"
                 android:text="Sign out"
-                android:onClick="onSignOut"
+                android:onClick="onSignOutClicked"
                 android:layout_weight="0.5"/>
         </LinearLayout>
     </LinearLayout>

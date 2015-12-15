@@ -207,7 +207,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (mess.isExisting())
                 {
-                    Intent myIntent = new Intent(LoginActivity.this, allLocationsActivity.class);
+                    Intent myIntent = new Intent(LoginActivity.this, AllLocationsActivity.class);
                     startActivity(myIntent);
                     return true;
                 }
