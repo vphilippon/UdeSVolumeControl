@@ -1,5 +1,7 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -28,8 +30,9 @@ import model.Config;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, TextWatcher, View.OnClickListener {
 
     private Config mConfig;
+    private Vector<Config> mOtherConfigs;
+
     private GoogleMap mMap;
-    private LatLng mCurrentLatLng;
     private EditText editNameTextView;
     private EditText editRadiusTextView;
     private Button mSaveButton;
@@ -42,7 +45,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mConfig = new Config(1,"Home",20.d,10.d,100,1,1);
+        mOtherConfigs = new Vector<Config>();
+        mOtherConfigs.add(new Config(1, "other", 45.3798844,-71.9277048, 500, 3, 3));
+
+        mConfig = new Config(2,"Home",45.3783470,-71.8973207,200,1,1);
         mConfig.setConfigName("Home");
         mConfig.setRadius(50);
 
@@ -63,11 +69,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
+        updateMapRadius();
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
-        mCurrentLatLng = latLng;
+        mConfig.setCenterX(latLng.longitude);
+        mConfig.setCenterY(latLng.latitude);
         updateMapRadius();
     }
 
@@ -83,6 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void afterTextChanged(Editable s) {
+        mConfig.setRadius(Integer.parseInt(editRadiusTextView.getText().toString()));
         updateMapRadius();
     }
 
@@ -91,18 +100,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mMap != null)
         {
             mMap.clear();
-            if (mCurrentLatLng != null)
+            if (mConfig != null)
             {
-                mMap.addMarker(new MarkerOptions().position(mCurrentLatLng).title("Selected Position"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(mCurrentLatLng));
+                LatLng position = new LatLng(mConfig.getCenterX(), mConfig.getCenterY());
+                mMap.addMarker(new MarkerOptions().position(position).title(mConfig.getConfigName()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
                 try{
                         CircleOptions circleOptions = new CircleOptions()
-                                .center(mCurrentLatLng)
-                                .radius(Double.parseDouble(editRadiusTextView.getText().toString()))
+                                .center(position)
+                                .radius(mConfig.getRadius())
                                 .strokeWidth(2)
                                 .strokeColor(Color.BLUE)
                                 .fillColor(Color.parseColor("#500084d3"));
                         mMap.addCircle(circleOptions);
+                } catch (NumberFormatException e)
+                {
+
+                }
+            }
+            for (Config config: mOtherConfigs)
+            {
+                LatLng otherCenter = new LatLng(config.getCenterX(), config.getCenterY());
+                mMap.addMarker(new MarkerOptions().position(otherCenter).title(config.getConfigName()));
+                try{
+                    CircleOptions circleOptions = new CircleOptions()
+                            .center(otherCenter)
+                            .radius(config.getRadius())
+                            .strokeWidth(2)
+                            .strokeColor(Color.BLACK)
+                            .fillColor(Color.argb(50,0,0,0));
+                    mMap.addCircle(circleOptions);
                 } catch (NumberFormatException e)
                 {
 
@@ -113,6 +140,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onClick(View v) {
+        Intent resultIntent = new Intent();
+        // TODO Add extras or a data URI to this intent as appropriate.
+        setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
 }

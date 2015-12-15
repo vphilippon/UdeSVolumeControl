@@ -22,6 +22,7 @@ import java.util.Vector;
 
 public class allLocationsActivity extends Activity {
 
+    private String mUsername;
     private ListAdapter m_locationListAdapter;
     private ArrayList<OurLocation> m_allOurLocations = new ArrayList<OurLocation>();
     private Boolean testBool = false;
@@ -47,6 +48,7 @@ public class allLocationsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
+        mUsername = getIntent().getStringExtra("userName");
         doBindService();
         //update();
     };
