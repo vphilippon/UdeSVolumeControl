@@ -2,23 +2,23 @@ package message;
 
 import java.util.ArrayList;
 
-import model.Config;
+import model.VolumeConfig;
 
 public class GetUserConfigsReply extends Reply {
 	private static final long serialVersionUID = 7742995740092814903L;
 	
-	private ArrayList<Config> _configs;
+	private ArrayList<VolumeConfig> _configs;
 
-	public GetUserConfigsReply(boolean success, ArrayList<Config> configs) {
+	public GetUserConfigsReply(boolean success, ArrayList<VolumeConfig> volumeConfigs) {
 		super(success);
-		_configs = configs;
+		_configs = volumeConfigs;
 	}
 	
-	public ArrayList<Config> getConfigs() {
+	public ArrayList<VolumeConfig> getConfigs() {
 		return _configs;
 	}
 	
-	public void setConfigs(ArrayList<Config> configs) {
-		_configs = configs;
+	public void setConfigs(ArrayList<VolumeConfig> volumeConfigs) {
+		_configs = volumeConfigs;
 	}
 }

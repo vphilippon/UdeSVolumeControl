@@ -12,7 +12,7 @@ import message.PostNewUserReply;
 import message.PostNewUserRequest;
 import message.PutConfigReply;
 import message.PutConfigRequest;
-import model.Config;
+import model.VolumeConfig;
 import utils.ClientUDP;
 import utils.Serializer;
 
@@ -51,13 +51,13 @@ public class DummyClient {
 			System.out.println(notexuser.isSuccess());
 			System.out.println(notexuser.isExisting());
 			
-			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new Config(null, "UdeS", 1.0, 1.0, 2, 5, 6))));
+			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new VolumeConfig(null, "UdeS", 1.0, 1.0, 2, 0))));
 			data = cl.receive();
 			PutConfigReply newconf = (PutConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("NewConf: ");
 			System.out.println(newconf.isSuccess());
 			
-			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new Config(1, "UdeS", 1.0, 1.0, 3, 0, 1))));
+			cl.send(Serializer.serialize(new PutConfigRequest("TOTO3", new VolumeConfig(1, "UdeS", 1.0, 1.0, 3, 1))));
 			data = cl.receive();
 			PutConfigReply updateconf = (PutConfigReply) Serializer.deserialize(data.getData());
 			System.out.println("UpdateConf: ");
@@ -68,8 +68,8 @@ public class DummyClient {
 			GetUserConfigsReply confs = (GetUserConfigsReply) Serializer.deserialize(data.getData());
 			System.out.println("Confs: ");
 			System.out.println(confs.isSuccess());
-			for (Config c : confs.getConfigs()) {
-				System.out.println(c.getConfigName());
+			for (VolumeConfig c : confs.getConfigs()) {
+				System.out.println(c.getName());
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
