@@ -50,16 +50,16 @@ public class LoginActivity extends AppCompatActivity {
 
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
 
-        Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
-        mSignInButton.setOnClickListener(new OnClickListener() {
+        Button signInButton = (Button) findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
 
-        Button mRegisterButton = (Button) findViewById(R.id.register_button);
-        mRegisterButton.setOnClickListener(new OnClickListener() {
+        Button registerButton = (Button) findViewById(R.id.register_button);
+        registerButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 createNewUser();
@@ -207,7 +207,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (mess.isExisting())
                 {
-                    Intent myIntent = new Intent(LoginActivity.this, ListActivity.class);
+                    Intent myIntent = new Intent(LoginActivity.this, allLocationsActivity.class);
                     startActivity(myIntent);
                     return true;
                 }
