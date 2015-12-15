@@ -14,9 +14,9 @@ import java.util.List;
 /**
  * Created by clom1806 on 2015-12-02.
  */
-public class ListAdapter extends ArrayAdapter<Location> {
+public class ListAdapter extends ArrayAdapter<OurLocation> {
 
-        public ListAdapter(Context context, int resource, List<Location> items) {
+        public ListAdapter(Context context, int resource, List<OurLocation> items) {
             super(context, resource, items);
         }
 
@@ -31,20 +31,20 @@ public class ListAdapter extends ArrayAdapter<Location> {
                 v = vi.inflate(R.layout.location_main, null);
             }
 
-            Location locationDetails = getItem(position);
+            OurLocation ourLocationDetails = getItem(position);
 
-            if (locationDetails != null) {
+            if (ourLocationDetails != null) {
 
                 TextView locationName = (TextView) v.findViewById(R.id.locationName);
                 ImageView currentProfile = (ImageView) v.findViewById(R.id.currentSoundProfile);
 
                 if(locationName != null){
-                    locationName.setText(locationDetails.m_name);
+                    locationName.setText(ourLocationDetails.m_name);
                 }
 
                 if(currentProfile != null){
 
-                    switch (locationDetails.m_profile.m_profile){
+                    switch (ourLocationDetails.m_profile.m_profile){
                         case SILENT:
                             currentProfile.setImageResource(R.drawable.ic_silent);
                             break;

@@ -48,8 +48,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         // Set up the login form.
 
-        startService(new Intent(this, VolumeControlService.class));
-
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
 
         Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
@@ -231,6 +229,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             else
             {
+
                 finish();
             }
         }
