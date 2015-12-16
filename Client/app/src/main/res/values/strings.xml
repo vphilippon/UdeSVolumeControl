@@ -7,4 +7,5 @@
     <string name="error_invalid_username">This username is invalid</string>
     <string name="error_field_required">This field is required</string>
     <string name="prompt_username">Username</string>
+    <string name="ipAddr">192.222.254.189</string>
 </resources>

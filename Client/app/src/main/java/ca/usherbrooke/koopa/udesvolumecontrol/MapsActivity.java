@@ -45,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         m_VolumeConfig = (VolumeConfig)getIntent().getSerializableExtra("configToEdit");
         if (m_VolumeConfig == null)
         {
-            m_VolumeConfig = new VolumeConfig(2,"",0.d,0.d,0,0);
+            m_VolumeConfig = new VolumeConfig(null,"",0.d,0.d,0,0);
         }
 
 
@@ -104,7 +104,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void afterTextChanged(Editable s) {
         m_VolumeConfig.setName(m_EditNameTextView.getText().toString());
-        m_VolumeConfig.setRadius(Integer.parseInt(m_EditRadiusTextView.getText().toString()));
+        if (m_EditRadiusTextView.getText().toString().length() > 0)
+        {
+            m_VolumeConfig.setRadius(Integer.parseInt(m_EditRadiusTextView.getText().toString()));
+        }
         updateMapRadius();
     }
 
