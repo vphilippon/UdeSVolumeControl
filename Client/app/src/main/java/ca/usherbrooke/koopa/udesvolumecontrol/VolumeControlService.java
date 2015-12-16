@@ -127,7 +127,15 @@ public class VolumeControlService extends Service implements LocationListener
             {
                 if(currentZoneIndex != -1)
                 {
-                    currentZoneIndex = newAllEntries.indexOf(allEntries.elementAt(currentZoneIndex));
+                    for (VolumeEntry entry : newAllEntries)
+                    {
+                        if(entry.getEntryName().equals(allEntries.elementAt(currentZoneIndex).getEntryName()))
+                        {
+                            currentZoneIndex = newAllEntries.indexOf(entry);
+                            break;
+                        }
+                    }
+                    Toast.makeText(VolumeControlService.this, "New index = " + currentZoneIndex, Toast.LENGTH_SHORT).show();
                 }
                 allEntries = newAllEntries;
             }
@@ -143,6 +151,7 @@ public class VolumeControlService extends Service implements LocationListener
             {
                 if (currentZoneIndex == -1)
                 {
+                    Toast.makeText(VolumeControlService.this, "Service has no clue where he is", Toast.LENGTH_SHORT).show();
                     return null;
                 } else
                 {

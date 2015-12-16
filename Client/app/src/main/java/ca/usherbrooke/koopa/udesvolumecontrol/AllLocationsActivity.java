@@ -14,17 +14,20 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.*;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import message.DeleteVolumeConfigReply;
@@ -44,6 +47,8 @@ public class AllLocationsActivity  extends Activity {
     static final int MODIFY_CONFIG = 1;
     static final int ADD_CONFIG = 2;
 
+    private Handler m_handler;
+    private Timer autoRefreshTimer;
     private String mUsername;
     private ListAdapter m_locationListAdapter;
     private ArrayList<VolumeConfig> m_volumeConfigs = new ArrayList<>();
@@ -56,6 +61,7 @@ public class AllLocationsActivity  extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service)
         {
             m_volumeControlService = ((VolumeControlService.VolumeControlServiceBinder) service).getService();
+            update();
         }
 
         @Override
@@ -73,9 +79,12 @@ public class AllLocationsActivity  extends Activity {
         mUsername = getIntent().getStringExtra("userName");
         doBindService();
 
-        m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
+        m_handler = new Handler(Looper.getMainLooper());
 
-        update();
+
+        m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
+        autoRefreshTimer = new Timer();
+        autoRefreshTimer.schedule(new AutoRefresh(m_handler), 0, 10000);
     }
 
     void doBindService()
@@ -97,12 +106,14 @@ public class AllLocationsActivity  extends Activity {
     public void onPause()
     {
         super.onPause();
+        autoRefreshTimer.cancel();
         doUnbindService();
     }
 
     public void onResume()
     {
         super.onResume();
+        autoRefreshTimer.schedule(new AutoRefresh(m_handler), 0, 10000);
         doBindService();
     }
 
@@ -192,7 +203,7 @@ public class AllLocationsActivity  extends Activity {
     public void onAddNewLocationClicked(View v){
         Intent myIntent = new Intent(AllLocationsActivity.this, MapsActivity.class);
         myIntent.putExtra("otherConfigs", m_volumeConfigs);
-        startActivityForResult(myIntent,ADD_CONFIG);
+        startActivityForResult(myIntent, ADD_CONFIG);
     }
 
     public void onUpdateClicked(View v) {
@@ -211,6 +222,13 @@ public class AllLocationsActivity  extends Activity {
         finish();
     }
 
+    @Override
+    protected void onStop(){
+        super.onStop();
+        autoRefreshTimer.cancel();
+        doUnbindService();
+    }
+
     private void update(){
         VolumeEntry currentLocation = m_volumeControlService != null ? m_volumeControlService.getCurrentVolumeEntry() : null;
         if (currentLocation == null) {
@@ -220,9 +238,27 @@ public class AllLocationsActivity  extends Activity {
             LinearLayout unknownLocationLayout = (LinearLayout) findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.VISIBLE);
         } else {
+            Toast.makeText(AllLocationsActivity.this, "Found current location", Toast.LENGTH_SHORT).show();
             LinearLayout knownLocationLayout = (LinearLayout) findViewById(R.id.knownLocation);
             knownLocationLayout.setVisibility(View.VISIBLE);
-
+            
+            TextView nameTextView = (TextView) findViewById(R.id.currentLocationName);
+            nameTextView.setText(currentLocation.getEntryName());
+            
+            ImageView profileImageView = (ImageView)findViewById(R.id.currentLocationProfile);
+            switch (currentLocation.getSoundProfile())
+            {
+                case SILENT:
+                    profileImageView.setImageResource(R.drawable.ic_silent);
+                    break;
+                case VIBRATE:
+                    profileImageView.setImageResource(R.drawable.ic_vibrate);
+                    break;
+                case SOUND:
+                    profileImageView.setImageResource(R.drawable.ic_sound);
+                    break;
+            }
+            
             m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
             LinearLayout unknownLocationLayout = (LinearLayout) findViewById(R.id.unknownLocation);
             unknownLocationLayout.setVisibility(View.GONE);
@@ -236,21 +272,6 @@ public class AllLocationsActivity  extends Activity {
             refreshTask.execute();
 
             eventList.setAdapter(m_locationListAdapter);
-
-            Vector<VolumeEntry> allNewEntries = new Vector<>();
-
-                for (VolumeConfig conf : m_volumeConfigs)
-                {
-                    Location aLocation = new Location(LocationManager.GPS_PROVIDER);
-                    aLocation.setLatitude(conf.getLatitude());
-                    aLocation.setLongitude(conf.getLongitude());
-                    allNewEntries.add(new VolumeEntry(conf.getName(),aLocation,conf.getRadius(),SoundProfiles.values()[conf.getProfile()]));
-                }
-
-              if (m_volumeControlService != null) {
-                m_volumeControlService.setAllEntries(allNewEntries);
-            }
-
         }
     }
 
@@ -260,7 +281,7 @@ public class AllLocationsActivity  extends Activity {
         refreshTask.execute();
         update();
     }
-    
+
     protected void onActivityResult (int requestCode, int resultCode, Intent data)
     {
         VolumeConfig config = (VolumeConfig) data.getSerializableExtra("VolumeConfig");
@@ -275,7 +296,6 @@ public class AllLocationsActivity  extends Activity {
         }
 
         refreshTask.execute();
-        update();
     }
 
 
@@ -285,6 +305,37 @@ public class AllLocationsActivity  extends Activity {
         if (eventList != null) {
 
             eventList.setAdapter(m_locationListAdapter);
+        }
+
+        Vector<VolumeEntry> allNewEntries = new Vector<>();
+
+        for (VolumeConfig conf : m_volumeConfigs)
+        {
+            Location aLocation = new Location(LocationManager.GPS_PROVIDER);
+            aLocation.setLatitude(conf.getLatitude());
+            aLocation.setLongitude(conf.getLongitude());
+            allNewEntries.add(new VolumeEntry(conf.getName(),aLocation,conf.getRadius(),SoundProfiles.values()[conf.getProfile()]));
+        }
+
+        if (m_volumeControlService != null) {
+            m_volumeControlService.setAllEntries(allNewEntries);
+        }
+    }
+
+    private class AutoRefresh extends TimerTask{
+        private Handler m_handler;
+        public AutoRefresh(Handler handler){
+            m_handler = handler;
+        }
+        @Override
+        public void run() {
+            m_handler.post(new Runnable() {
+
+                               @Override
+                               public void run() {
+                                   update();
+                               }
+                           });
         }
     }
 
@@ -368,9 +419,11 @@ public class AllLocationsActivity  extends Activity {
         }
 
         private void addConfigs(ArrayList<VolumeConfig> configs) {
-            m_volumeConfigs.clear();
-            for (VolumeConfig conf : configs) {
-                m_volumeConfigs.add(conf);
+            synchronized (m_volumeConfigs){
+                m_volumeConfigs.clear();
+                for (VolumeConfig conf : configs) {
+                    m_volumeConfigs.add(conf);
+                }
             }
         }
     }
