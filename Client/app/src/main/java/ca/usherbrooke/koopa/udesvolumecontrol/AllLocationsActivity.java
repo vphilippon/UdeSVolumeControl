@@ -5,6 +5,7 @@
 //Vincent Philippon 12 098 838
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -15,6 +16,7 @@ import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -55,7 +57,9 @@ public class AllLocationsActivity  extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service)
         {
-            m_volumeControlService = ((VolumeControlService.VolumeControlServiceBinder) service).getService();
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            VolumeControlService.VolumeControlServiceBinder binder = (VolumeControlService.VolumeControlServiceBinder) service;
+            m_volumeControlService = binder.getService();
         }
 
         @Override
@@ -65,45 +69,33 @@ public class AllLocationsActivity  extends Activity {
         }
     };
 
-
+    protected void onDestroy()
+    {
+        super.onDestroy();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.all_locations_activity);
         mUsername = getIntent().getStringExtra("userName");
-        doBindService();
-
         m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
-
+        Intent serviceIntent = new Intent(this, VolumeControlService.class);
+        startService(serviceIntent);
+        bindService(serviceIntent, m_volumeControlServiceConnection, Context.BIND_AUTO_CREATE);
         update();
-    }
-
-    void doBindService()
-    {
-        bindService(new Intent(this,
-                VolumeControlService.class), m_volumeControlServiceConnection, Context.BIND_AUTO_CREATE);
-        m_isBound = true;
-    }
-
-    void doUnbindService()
-    {
-        if (m_isBound)
-        {
-            unbindService(m_volumeControlServiceConnection);
-            m_isBound = false;
-        }
     }
 
     public void onPause()
     {
         super.onPause();
-        doUnbindService();
+        unbindService(m_volumeControlServiceConnection);
     }
 
     public void onResume()
     {
         super.onResume();
-        doBindService();
+        Intent serviceIntent = new Intent(this, VolumeControlService.class);
+        bindService(serviceIntent, m_volumeControlServiceConnection, Context.BIND_ADJUST_WITH_ACTIVITY);
     }
 
     @Override
@@ -204,8 +196,7 @@ public class AllLocationsActivity  extends Activity {
     }
 
     private void signOut(){
-        doUnbindService();
-
+        stopService(new Intent(this,VolumeControlService.class));
         Intent myIntent = new Intent(AllLocationsActivity.this, LoginActivity.class);
         startActivity(myIntent);
         finish();

@@ -1,6 +1,7 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +35,12 @@ public class VolumeControlService extends Service implements LocationListener
             return VolumeControlService.this;
         }
     }
-
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        super.onStartCommand(intent, flags, startId);
+        startForeground(startId,new Notification());
+        return START_STICKY;
+    }
     @Override
     public void onCreate()
     {
@@ -61,7 +67,6 @@ public class VolumeControlService extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
-        Toast.makeText(getApplicationContext(),"Location Changed", Toast.LENGTH_SHORT).show();
 
         synchronized (allEntries)
         {
@@ -69,7 +74,6 @@ public class VolumeControlService extends Service implements LocationListener
             {
                 for (VolumeEntry entry : allEntries)
                 {
-                    Toast.makeText(getApplicationContext(),"Checking " + entry.getEntryName(), Toast.LENGTH_SHORT).show();
 
                     if (entry.isInside(location))
                     {
@@ -125,7 +129,6 @@ public class VolumeControlService extends Service implements LocationListener
 
     public void setAllEntries(Vector<VolumeEntry> newAllEntries)
     {
-        Toast.makeText(getApplicationContext(),"Adding " + newAllEntries.size() + " entries", Toast.LENGTH_SHORT).show();
         synchronized (allEntries)
         {
             synchronized (currentZoneIndex)
@@ -142,7 +145,6 @@ public class VolumeControlService extends Service implements LocationListener
     @Nullable
     public VolumeEntry getCurrentVolumeEntry()
     {
-        Toast.makeText(getApplicationContext(),"Getting entry", Toast.LENGTH_SHORT).show();
 
         synchronized (allEntries)
         {
