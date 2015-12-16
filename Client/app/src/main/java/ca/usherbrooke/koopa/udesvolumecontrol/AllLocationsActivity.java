@@ -307,7 +307,7 @@ public class AllLocationsActivity  extends Activity {
             ClientTCP cl = null;
             try {
                 cl = new ClientTCP();
-                cl.connect("10.44.88.174", 9005);
+                cl.connect(getResources().getString(R.string.ipAddr), 9005);
 
                 switch (mRequest)
                 {

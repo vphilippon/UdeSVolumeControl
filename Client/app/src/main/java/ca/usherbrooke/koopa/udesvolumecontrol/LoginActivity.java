@@ -29,8 +29,6 @@ public class LoginActivity extends AppCompatActivity
 {
     private UserLoginTask mAuthTask = null;
     private CreateUserTask mCreateUserTask = null;
-
-    private final String m_address = "192.222.254.189"; // Zach server - 192.222.254.189  ||  MyPc - 10.44.88.174
     private final int m_port = 9005;
 
     private AutoCompleteTextView mUsernameView;
@@ -172,7 +170,7 @@ public class LoginActivity extends AppCompatActivity
             ClientTCP cl = null;
             try {
                 cl = new ClientTCP();
-                cl.connect(m_address, m_port);
+                cl.connect(getResources().getString(R.string.ipAddr), m_port);
 
                 cl.send(Serializer.serialize(new ExistsUserRequest(mUsername)));
 
@@ -239,7 +237,7 @@ public class LoginActivity extends AppCompatActivity
         protected Boolean doInBackground(Void... params) {
             try {
                 ClientTCP cl = new ClientTCP();
-                cl.connect(m_address, m_port);
+                cl.connect(getResources().getString(R.string.ipAddr), m_port);
 
                 cl.send(Serializer.serialize(new PostNewUserRequest(mUsername)));
 
