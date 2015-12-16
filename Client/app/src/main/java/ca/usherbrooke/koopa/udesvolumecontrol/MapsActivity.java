@@ -51,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         m_EditNameTextView = (EditText)findViewById(R.id.editProfileNameText);
         m_EditNameTextView.setText(m_VolumeConfig.getName());
+        m_EditNameTextView.addTextChangedListener(this);
 
         m_EditRadiusTextView = (EditText)findViewById(R.id.editRadiusText);
         m_EditRadiusTextView.setText(m_VolumeConfig.getRadius().toString());
