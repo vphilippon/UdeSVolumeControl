@@ -1,6 +1,7 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +35,12 @@ public class VolumeControlService extends Service implements LocationListener
             return VolumeControlService.this;
         }
     }
-
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        super.onStartCommand(intent, flags, startId);
+        startForeground(startId,new Notification());
+        return START_STICKY;
+    }
     @Override
     public void onCreate()
     {
@@ -61,12 +67,14 @@ public class VolumeControlService extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
+
         synchronized (allEntries)
         {
             synchronized (currentZoneIndex)
             {
                 for (VolumeEntry entry : allEntries)
                 {
+
                     if (entry.isInside(location))
                     {
                         if (currentZoneIndex == -1 || !entry.getEntryName().equals(allEntries.elementAt(currentZoneIndex).getEntryName()))
@@ -135,7 +143,6 @@ public class VolumeControlService extends Service implements LocationListener
                             break;
                         }
                     }
-                    Toast.makeText(VolumeControlService.this, "New index = " + currentZoneIndex, Toast.LENGTH_SHORT).show();
                 }
                 allEntries = newAllEntries;
             }
@@ -145,13 +152,13 @@ public class VolumeControlService extends Service implements LocationListener
     @Nullable
     public VolumeEntry getCurrentVolumeEntry()
     {
+
         synchronized (allEntries)
         {
             synchronized (currentZoneIndex)
             {
                 if (currentZoneIndex == -1)
                 {
-                    Toast.makeText(VolumeControlService.this, "Service has no clue where he is", Toast.LENGTH_SHORT).show();
                     return null;
                 } else
                 {

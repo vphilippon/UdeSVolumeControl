@@ -165,8 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onBackPressed() {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("VolumeConfig", m_VolumeConfig);
-        setResult(Activity.RESULT_OK, resultIntent);
+        setResult(Activity.RESULT_CANCELED, resultIntent);
         finish();
     }
 

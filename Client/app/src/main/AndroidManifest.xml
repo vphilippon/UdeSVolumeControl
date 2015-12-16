@@ -29,7 +29,8 @@
         <activity android:name=".AllLocationsActivity"/>
         <activity android:name=".MapsActivity"/>
 
-        <service android:name=".VolumeControlService" />
+        <service android:name=".VolumeControlService" android:enabled="true"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAbsfEHYIWSsY6C0xh_GCuelzuE6_tvjfE"/>
