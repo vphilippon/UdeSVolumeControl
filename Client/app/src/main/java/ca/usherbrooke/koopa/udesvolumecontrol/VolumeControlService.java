@@ -71,26 +71,30 @@ public class VolumeControlService extends Service implements LocationListener
                     {
                         if (currentZoneIndex == -1 || !entry.getEntryName().equals(allEntries.elementAt(currentZoneIndex).getEntryName()))
                         {
-//                            // TODO: Maxime peu etre si j'ai bien compris is je check le sound profile et selon je met ce qu'il faut
-//                            currentZoneIndex = allEntries.indexOf(entry);
-//                            if(entry.getSoundProfile() == SoundProfiles.SOUND)
-//                            {
-//                                audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, audioMan.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION), 0);
-//                                audioMan.setStreamVolume(AudioManager.STREAM_RING, audioMan.getStreamMaxVolume(AudioManager.STREAM_RING), 0);
-//                            } else if(entry.getSoundProfile() == SoundProfiles.SILENT)
-//                            {
-//                                audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0);
-//                                audioMan.setStreamVolume(AudioManager.STREAM_RING,0, 0);
-//                            }
-//                            // TODO Maxime Pour le vibrate je ne seais pas comment le gerer
-
-
                             currentZoneIndex = allEntries.indexOf(entry);
 
                             Toast.makeText(getBaseContext(), "Entering Zone " + entry.getEntryName(), Toast.LENGTH_SHORT).show();
-                            audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, entry.getNotificationVolume(), 0);
-                            audioMan.setStreamVolume(AudioManager.STREAM_RING, entry.getRingtoneVolume(), 0);
-                            audioMan.setRingerMode(entry.doesVibrate() ? AudioManager.RINGER_MODE_NORMAL : AudioManager.RINGER_MODE_SILENT);
+
+                            SoundProfiles profile = entry.getSoundProfile();
+
+                            switch (profile)
+                            {
+                                case SOUND:
+                                    audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, audioMan.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION), 0);
+                                    audioMan.setStreamVolume(AudioManager.STREAM_RING, audioMan.getStreamMaxVolume(AudioManager.STREAM_RING), 0);
+                                    audioMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                                    break;
+                                case VIBRATE:
+                                    audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0);
+                                    audioMan.setStreamVolume(AudioManager.STREAM_RING,0, 0);
+                                    audioMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                                    break;
+                                case SILENT:
+                                    audioMan.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0);
+                                    audioMan.setStreamVolume(AudioManager.STREAM_RING,0, 0);
+                                    audioMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                                    break;
+                            }
                         }
                         break;
                     }

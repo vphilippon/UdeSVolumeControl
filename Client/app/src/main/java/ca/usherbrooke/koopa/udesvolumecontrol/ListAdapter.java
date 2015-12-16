@@ -12,8 +12,6 @@ import java.util.List;
 
 import model.VolumeConfig;
 
-import static ca.usherbrooke.koopa.udesvolumecontrol.SoundProfiles.*;
-
 
 /**
  * Created by clom1806 on 2015-12-02.

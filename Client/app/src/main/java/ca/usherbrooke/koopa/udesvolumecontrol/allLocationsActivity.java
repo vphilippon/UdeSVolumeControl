@@ -6,19 +6,17 @@
 package ca.usherbrooke.koopa.udesvolumecontrol;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -26,10 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Vector;
 
 import message.DeleteVolumeConfigReply;
@@ -44,14 +39,14 @@ import utils.Serializer;
 
 public class AllLocationsActivity  extends Activity {
 
-    protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  };
+    protected enum DatabaseRequests{ REFRESH, DELETE, EDIT, ADD  }
 
     static final int MODIFY_CONFIG = 1;
     static final int ADD_CONFIG = 2;
 
     private String mUsername;
     private ListAdapter m_locationListAdapter;
-    private ArrayList<VolumeConfig> m_volumeConfigs = new ArrayList<VolumeConfig>();
+    private ArrayList<VolumeConfig> m_volumeConfigs = new ArrayList<>();
     VolumeControlService m_volumeControlService = null;
     boolean m_isBound = false;
 
@@ -81,7 +76,7 @@ public class AllLocationsActivity  extends Activity {
         m_locationListAdapter = new ListAdapter(this, R.layout.location_main, m_volumeConfigs);
 
         update();
-    };
+    }
 
     void doBindService()
     {
@@ -129,11 +124,9 @@ public class AllLocationsActivity  extends Activity {
         {
             TextView tv = (TextView)findViewById(R.id.currentLocationName);
             String configName = tv.getText().toString();
-            Iterator<VolumeConfig>it = m_volumeConfigs.iterator();
-            while(it.hasNext())
+            for (VolumeConfig current : m_volumeConfigs)
             {
-                VolumeConfig current = it.next();
-                if(current.getName().equals(configName))
+                if (current.getName().equals(configName))
                 {
                     configToEdit = current;
                     break;
@@ -161,11 +154,9 @@ public class AllLocationsActivity  extends Activity {
         {
             TextView tv = (TextView)findViewById(R.id.currentLocationName);
             currentLocationName = tv.getText().toString();
-            Iterator<VolumeConfig>it = m_volumeConfigs.iterator();
-            while(it.hasNext())
+            for (VolumeConfig current : m_volumeConfigs)
             {
-                VolumeConfig current = it.next();
-                if(current.getName().equals(currentLocationName))
+                if (current.getName().equals(currentLocationName))
                 {
                     configtoDelete = current;
                     break;
@@ -174,19 +165,23 @@ public class AllLocationsActivity  extends Activity {
         }
         final VolumeConfig confFinal = configtoDelete; // Need to access in the inner AsyncTask
 
-        AlertDialog dlg = new AlertDialog.Builder(v.getContext())
+        new AlertDialog.Builder(v.getContext())
                 .setMessage("Are you sure you want to delete " + currentLocationName + " ?")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
                         //send to server DELETE LOCATION
-                      //config.getId();
+                        //config.getId();
                         onDeleteYesClick(confFinal);
                     }
                 })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
+                {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
                         //do nothing
                     }
                 })
@@ -234,43 +229,26 @@ public class AllLocationsActivity  extends Activity {
         }
 
         ListView eventList = (ListView) findViewById(R.id.locationList);
-        if (eventList != null) {
+        if (eventList != null)
+        {
 
             DatabaseRequestTask refreshTask = new DatabaseRequestTask(this, DatabaseRequests.REFRESH, mUsername, null);
             refreshTask.execute();
 
             eventList.setAdapter(m_locationListAdapter);
 
-            Vector<VolumeEntry> TemporaireAllEntries = new Vector<VolumeEntry>();
+            Vector<VolumeEntry> allNewEntries = new Vector<>();
 
-            for (VolumeConfig conf : m_volumeConfigs) {
-                Location aLocationFromJavaLocationClass = new Location(LocationManager.GPS_PROVIDER);
-                aLocationFromJavaLocationClass.setLatitude(conf.getLatitude());
-                aLocationFromJavaLocationClass.setLongitude(conf.getLongitude());
-
-                int ringtone = 0;
-                boolean vibrate = false;
-
-                switch (SoundProfiles.values()[conf.getProfile()]){
-                    case SILENT:
-                        break;
-                    case VIBRATE:
-                        vibrate = true;
-                        break;
-                    case SOUND:
-                        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-                        ringtone = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
-                        break;
+                for (VolumeConfig conf : m_volumeConfigs)
+                {
+                    Location aLocation = new Location(LocationManager.GPS_PROVIDER);
+                    aLocation.setLatitude(conf.getLatitude());
+                    aLocation.setLongitude(conf.getLongitude());
+                    allNewEntries.add(new VolumeEntry(conf.getName(),aLocation,conf.getRadius(),SoundProfiles.values()[conf.getProfile()]));
                 }
 
-                TemporaireAllEntries.add(new VolumeEntry(conf.getName(), aLocationFromJavaLocationClass, conf.getRadius(), ringtone, ringtone, vibrate));
-            }
-
-            //VolumeEntry TempLoc = new VolumeEntry("Un Nom", aLocationFromJavaLocationClass, radius, ringtone, notificatiuon, vibrate);
-            //TemporaireAllEntries.add(TempLoc);
-            // Ca erase les anciens entry et les remplace par les nouveaux.
-            if (m_volumeControlService != null) {
-                m_volumeControlService.setAllEntries(TemporaireAllEntries);
+              if (m_volumeControlService != null) {
+                m_volumeControlService.setAllEntries(allNewEntries);
             }
 
         }
@@ -285,7 +263,6 @@ public class AllLocationsActivity  extends Activity {
     
     protected void onActivityResult (int requestCode, int resultCode, Intent data)
     {
-        //TODO replace with sending to server async task.
         VolumeConfig config = (VolumeConfig) data.getSerializableExtra("VolumeConfig");
         DatabaseRequestTask refreshTask;
 

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,7 +21,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import model.VolumeConfig;
 
@@ -34,8 +32,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap m_Map;
     private EditText m_EditNameTextView;
     private EditText m_EditRadiusTextView;
-    private Button m_SaveButton;
-    private RadioGroup m_RadioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +56,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         m_EditRadiusTextView.setText(m_VolumeConfig.getRadius().toString());
         m_EditRadiusTextView.addTextChangedListener(this);
 
-        m_SaveButton = (Button) findViewById(R.id.saveButton);
+        Button m_SaveButton = (Button) findViewById(R.id.saveButton);
         m_SaveButton.setOnClickListener(this);
 
-        m_RadioGroup = (RadioGroup) findViewById(R.id.radioGroupProfile);
+        RadioGroup m_RadioGroup = (RadioGroup) findViewById(R.id.radioGroupProfile);
         m_RadioGroup.setOnCheckedChangeListener(this);
         switch(SoundProfiles.values()[m_VolumeConfig.getProfile()])
         {
@@ -131,7 +127,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         m_Map.addCircle(circleOptions);
                 } catch (NumberFormatException e)
                 {
-
+                    e.printStackTrace();
                 }
             }
             for (VolumeConfig config: m_OtherConfigs)
@@ -148,7 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     m_Map.addCircle(circleOptions);
                 } catch (NumberFormatException e)
                 {
-
+                    e.printStackTrace();
                 }
             }
         }
