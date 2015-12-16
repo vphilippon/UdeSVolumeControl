@@ -39,7 +39,7 @@ import message.GetVolumeConfigsRequest;
 import message.PutVolumeConfigReply;
 import message.PutVolumeConfigRequest;
 import model.VolumeConfig;
-import utils.ClientUDP;
+import utils.ClientTCP;
 import utils.Serializer;
 
 public class AllLocationsActivity  extends Activity {
@@ -327,8 +327,9 @@ public class AllLocationsActivity  extends Activity {
 
         @Override
         protected Boolean doInBackground(Void ... parms) {
+            ClientTCP cl = null;
             try {
-                ClientUDP cl = new ClientUDP(1000);
+                cl = new ClientTCP();
                 cl.connect("10.44.88.174", 9005);
 
                 switch (mRequest)
@@ -347,28 +348,37 @@ public class AllLocationsActivity  extends Activity {
                         break;
                 }
 
-                DatagramPacket rep = cl.receive();
+                Object rep = cl.receive();
 
                 switch (mRequest)
                 {
                     case REFRESH:
-                        GetVolumeConfigsReply messRefresh = (GetVolumeConfigsReply) Serializer.deserialize(rep.getData());
+                        GetVolumeConfigsReply messRefresh = (GetVolumeConfigsReply) rep;
                         addConfigs(messRefresh.getConfigs());
                         return messRefresh.isSuccess();
                     case EDIT:
-                        PutVolumeConfigReply messEdit = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        PutVolumeConfigReply messEdit = (PutVolumeConfigReply) rep;
                         return messEdit.isSuccess();
                     case DELETE:
-                        DeleteVolumeConfigReply messDelete = (DeleteVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        DeleteVolumeConfigReply messDelete = (DeleteVolumeConfigReply) rep;
                         return messDelete.isSuccess();
                     case ADD:
-                        PutVolumeConfigReply messAdd = (PutVolumeConfigReply) Serializer.deserialize(rep.getData());
+                        PutVolumeConfigReply messAdd = (PutVolumeConfigReply) rep;
                         return messAdd.isSuccess();
                 }
                 //addConfigs(new ArrayList<VolumeConfig>());
 
             }  catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+            }
+            finally {
+                if(cl != null) {
+                    try {
+                        cl.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             return false;

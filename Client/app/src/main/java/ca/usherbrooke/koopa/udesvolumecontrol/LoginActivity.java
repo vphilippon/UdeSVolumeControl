@@ -17,14 +17,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 
 import message.ExistsUserReply;
 import message.ExistsUserRequest;
-import message.HelloWorldMessage;
 import message.PostNewUserReply;
 import message.PostNewUserRequest;
-import utils.ClientUDP;
+import utils.ClientTCP;
 import utils.Serializer;
 
 /**
@@ -40,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private final String m_address = "10.44.88.174"; // Zach server - 192.222.254.189  ||  MyPc - 10.44.88.174
     private final int m_port = 9005;
-    private final int m_timeout = 5000;
 
     // UI references.
     private AutoCompleteTextView mUsernameView;
@@ -201,14 +198,14 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            ClientTCP cl = null;
             try {
-                ClientUDP cl = new ClientUDP(m_timeout);
+                cl = new ClientTCP();
                 cl.connect(m_address, m_port);
 
                 cl.send(Serializer.serialize(new ExistsUserRequest(mUsername)));
 
-                DatagramPacket rep = cl.receive();
-                ExistsUserReply mess = (ExistsUserReply) Serializer.deserialize(rep.getData());
+                ExistsUserReply mess = (ExistsUserReply) cl.receive();
 
                 if (mess.isExisting())
                 {
@@ -220,6 +217,14 @@ public class LoginActivity extends AppCompatActivity {
 
             }  catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (cl != null) {
+                        cl.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             return false;
@@ -262,13 +267,12 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                ClientUDP cl = new ClientUDP(m_timeout);
+                ClientTCP cl = new ClientTCP();
                 cl.connect(m_address, m_port);
 
                 cl.send(Serializer.serialize(new PostNewUserRequest(mUsername)));
 
-                DatagramPacket rep = cl.receive();
-                PostNewUserReply mess = (PostNewUserReply) Serializer.deserialize(rep.getData());
+                PostNewUserReply mess = (PostNewUserReply) cl.receive();
 
                 return mess.isSuccess();
 
